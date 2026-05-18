@@ -66,16 +66,19 @@ const chat = async (req, res) => {
         const wantsReschedule = rescheduleWords.some(w =>
             message.toLowerCase().includes(w)
         ) && sessionState.mode === 'normal';
- 
+
         if (wantsReschedule) {
             const lastBooking = await getLastBooking(conversation_id);
             if (lastBooking) {
-                setSessionState(session_id, {
+                const newState = {
                     mode: 'rescheduling',
                     bookingId: lastBooking.id,
                     collectedData: {}
-                });
+                };
+                setSessionState(session_id, newState);
+                // Same request mein bhi updated state use ho
                 sessionState.mode = 'rescheduling';
+                sessionState.bookingId = lastBooking.id;
                 sessionState.lastBooking = lastBooking;
             }
         }
@@ -98,7 +101,7 @@ const chat = async (req, res) => {
         console.log('=== RAW AI RESPONSE ===', aiResponse);
 
         // 8. AI response parse karo
-        let finalReply = aiResponse; 
+        let finalReply = aiResponse;
         let newMode = sessionState.mode;
 
         // Booking intent detect karo normal mode mein

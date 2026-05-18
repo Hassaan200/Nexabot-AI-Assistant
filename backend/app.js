@@ -6,6 +6,7 @@ import router from './src/routes/chat.js';
 import widgetRoutes from './src/routes/widget.js'
 import path from 'path';
 import { fileURLToPath } from 'url';
+import authRoutes from './src/routes/auth.js'
 
 
 dotenv.config();
@@ -21,6 +22,7 @@ app.get('/', (req,res)=>{
 // chat route active yeha horha hai
 app.use('/api/chat', router);
 app.use('/widget.js', widgetRoutes);
+app.use('/api/auth', authRoutes);
 
 app.use(express.static(path.join(__dirname, 'public')));
 

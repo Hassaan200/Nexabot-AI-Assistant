@@ -2,6 +2,8 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import pool from '../config/db.js';
 import generateApiKey from '../utils/generateApiKey.js';
+import dotenv from 'dotenv';
+dotenv.config();
 
 // ─── REGISTER ───────────────────────────────────────────
 export const register = async (req, res) => {

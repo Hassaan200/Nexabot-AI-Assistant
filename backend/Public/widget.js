@@ -1,22 +1,24 @@
 (function () {
   const script = document.currentScript;
   const API_KEY = script.getAttribute('data-api-key');
-  const SERVER_URL = 'http://192.168.43.37:3000';
+  const SERVER_URL = '__SERVER_URL__';
+  const WIDGET_NAME = '__WIDGET_NAME__';
+  const WIDGET_COLOR = '__WIDGET_COLOR__';
 
-  // Unique session ID — har visitor ka alag
   const SESSION_ID = 'session_' + Math.random().toString(36).substr(2, 9);
 
-  // Styles inject karo
   const style = document.createElement('style');
   style.innerHTML = `
     #nexabot-bubble {
       position: fixed; bottom: 24px; right: 24px;
       width: 56px; height: 56px; border-radius: 50%;
-      background: #2563eb; color: white; font-size: 26px;
+      background: ${WIDGET_COLOR}; color: white; font-size: 26px;
       display: flex; align-items: center; justify-content: center;
       cursor: pointer; box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-      z-index: 99999;
+      z-index: 99999; border: none;
+      transition: transform 0.2s ease;
     }
+    #nexabot-bubble:hover { transform: scale(1.1); }
     #nexabot-window {
       position: fixed; bottom: 90px; right: 24px;
       width: 340px; height: 480px; border-radius: 16px;
@@ -25,8 +27,9 @@
       font-family: sans-serif; overflow: hidden;
     }
     #nexabot-header {
-      background: #2563eb; color: white;
+      background: ${WIDGET_COLOR}; color: white;
       padding: 16px; font-weight: bold; font-size: 15px;
+      display: flex; align-items: center; gap: 8px;
     }
     #nexabot-messages {
       flex: 1; overflow-y: auto;
@@ -42,7 +45,7 @@
       align-self: flex-start; border-bottom-left-radius: 2px;
     }
     .nexabot-msg.user {
-      background: #2563eb; color: white;
+      background: ${WIDGET_COLOR}; color: white;
       align-self: flex-end; border-bottom-right-radius: 2px;
     }
     #nexabot-input-area {
@@ -53,8 +56,9 @@
       flex: 1; padding: 8px 12px; border-radius: 20px;
       border: 1px solid #cbd5e1; outline: none; font-size: 13px;
     }
+    #nexabot-input:focus { border-color: ${WIDGET_COLOR}; }
     #nexabot-send {
-      background: #2563eb; color: white;
+      background: ${WIDGET_COLOR}; color: white;
       border: none; border-radius: 50%;
       width: 36px; height: 36px; cursor: pointer; font-size: 16px;
     }
@@ -66,11 +70,10 @@
   `;
   document.head.appendChild(style);
 
-  // HTML inject karo
   document.body.innerHTML += `
     <div id="nexabot-bubble">💬</div>
     <div id="nexabot-window">
-      <div id="nexabot-header">🤖 NexaBot Assistant</div>
+      <div id="nexabot-header">🤖 ${WIDGET_NAME}</div>
       <div id="nexabot-messages"></div>
       <div id="nexabot-input-area">
         <input id="nexabot-input" type="text" placeholder="Message likhein..." />
@@ -80,21 +83,19 @@
   `;
 
   const bubble = document.getElementById('nexabot-bubble');
-  const window_ = document.getElementById('nexabot-window');
+  const chatWindow = document.getElementById('nexabot-window');
   const messages = document.getElementById('nexabot-messages');
   const input = document.getElementById('nexabot-input');
   const sendBtn = document.getElementById('nexabot-send');
 
-  // Bubble click — open/close
   bubble.addEventListener('click', () => {
-    const isOpen = window_.style.display === 'flex';
-    window_.style.display = isOpen ? 'none' : 'flex';
+    const isOpen = chatWindow.style.display === 'flex';
+    chatWindow.style.display = isOpen ? 'none' : 'flex';
     if (!isOpen && messages.children.length === 0) {
       addMessage('bot', 'Assalam o Alaikum! Main aapki kaise madad kar sakta hun?');
     }
   });
 
-  // Message add karo UI mein
   const addMessage = (role, text) => {
     const div = document.createElement('div');
     div.className = `nexabot-msg ${role}`;
@@ -103,12 +104,11 @@
     messages.scrollTop = messages.scrollHeight;
   };
 
-  // Typing indicator
   const showTyping = () => {
     const div = document.createElement('div');
     div.className = 'nexabot-typing';
     div.id = 'nexabot-typing';
-    div.innerText = 'Likh raha hun...';
+    div.innerText = '...';
     messages.appendChild(div);
     messages.scrollTop = messages.scrollHeight;
   };
@@ -118,7 +118,6 @@
     if (t) t.remove();
   };
 
-  // API call
   const sendMessage = async () => {
     const text = input.value.trim();
     if (!text) return;
@@ -140,10 +139,10 @@
 
       const data = await res.json();
       hideTyping();
-      addMessage('bot', data.reply);
+      addMessage('bot', data.reply || 'Kuch masla hua, dobara try karein.');
     } catch (err) {
       hideTyping();
-      addMessage('bot', 'Kuch masla hua, dobara try karein.');
+      addMessage('bot', 'Connection error, dobara try karein.');
     }
   };
 

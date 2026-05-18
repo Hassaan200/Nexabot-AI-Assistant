@@ -27,7 +27,7 @@ export const getSessionState = (sessionId) => {
 
 export const setSessionState = (sessionId, state) => {
   sessions[sessionId] = state;
-};
+}; 
 
 export const clearSession = (sessionId) => {
   delete sessions[sessionId]; 

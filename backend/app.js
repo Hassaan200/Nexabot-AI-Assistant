@@ -7,6 +7,7 @@ import widgetRoutes from './src/routes/widget.js'
 import path from 'path';
 import { fileURLToPath } from 'url';
 import authRoutes from './src/routes/auth.js'
+import dashboardRoutes from './src/routes/dashboard.js';
 
 
 dotenv.config();
@@ -23,6 +24,7 @@ app.get('/', (req,res)=>{
 app.use('/api/chat', router);
 app.use('/widget.js', widgetRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -30,5 +32,5 @@ const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`Nexabot server is running on ${PORT}`)
-})
+});
  

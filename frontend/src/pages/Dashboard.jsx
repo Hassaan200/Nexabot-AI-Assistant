@@ -21,6 +21,7 @@ export default function Dashboard() {
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
+  const backendUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:3000';
 
   return (
     <div className="p-8">
@@ -54,13 +55,13 @@ export default function Dashboard() {
         </p>
         <div className="bg-gray-900 rounded-xl p-4 overflow-x-auto">
           <code className="text-green-400 text-xs whitespace-nowrap">
-            {`<script src="http://localhost:3000/widget.js?key=${client?.api_key}" data-api-key="${client?.api_key}"></script>`}
+            {`<script src="${backendUrl}/widget.js?key=${client?.api_key}" data-api-key="${client?.api_key}"></script>" data-api-key="${client?.api_key}"></script>`}
           </code>
         </div>
         <button
           onClick={() => {
             navigator.clipboard.writeText(
-              `<script src="http://localhost:3000/widget.js?key=${client?.api_key}" data-api-key="${client?.api_key}"></script>`
+              `<script src="${backendUrl}/widget.js?key=${client?.api_key}" data-api-key="${client?.api_key}"></script>`
             );
             alert('Code copy ho gaya!');
           }}

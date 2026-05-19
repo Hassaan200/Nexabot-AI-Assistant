@@ -3,8 +3,9 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import Sidebar from './components/Sidebar';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
-// import Bookings from './pages/Bookings';
-// import Conversations from './pages/Conversations';
+import Bookings from './pages/Bookings';
+import Conversations from './pages/Conversations';
+import Settings from './pages/Settings';
 
 const ProtectedLayout = ({ children }) => {
   const { client, loading } = useAuth();
@@ -38,12 +39,15 @@ export default function App() {
           <Route path="/" element={
             <ProtectedLayout><Dashboard /></ProtectedLayout>
           } />
-          {/* <Route path="/bookings" element={
+          <Route path="/bookings" element={
             <ProtectedLayout><Bookings /></ProtectedLayout>
           } />
           <Route path="/conversations" element={
             <ProtectedLayout><Conversations /></ProtectedLayout>
-          } /> */}
+          } />
+          <Route path="/settings" element={
+            <ProtectedLayout><Settings /></ProtectedLayout>
+          } />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

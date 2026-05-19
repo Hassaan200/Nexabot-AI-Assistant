@@ -93,7 +93,7 @@ export const login = async (req, res) => {
 
     if (!email || !password) {
       return res.status(400).json({ 
-        error: 'Email aur password zaroori hain' 
+        error: 'Email and password are required' 
       });
     }
 
@@ -104,20 +104,20 @@ export const login = async (req, res) => {
     );
 
     if (clients.length === 0) {
-      return res.status(401).json({ error: 'Email ya password galat hai' });
+      return res.status(401).json({ error: 'Invalid email or password' });
     }
 
     const client = clients[0];
 
     // Account active hai?
     if (!client.is_active) {
-      return res.status(403).json({ error: 'Account suspend hai' });
+      return res.status(403).json({ error: 'This Account is suspended ' });
     }
 
     // Password check karo
     const isMatch = await bcrypt.compare(password, client.password_hash);
     if (!isMatch) {
-      return res.status(401).json({ error: 'Email ya password galat hai' });
+      return res.status(401).json({ error: 'Invalid email or password' });
     }
 
     // JWT token

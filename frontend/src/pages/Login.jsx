@@ -17,7 +17,23 @@ export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
 
+  const isValidEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const handleSubmit = async () => {
+    // Email validation
+    if (!form.email || !isValidEmail(form.email)) {
+      setError('Please enter a valid email address');
+      return;
+    }
+
+    // Password validation (optional)
+    if (!form.password) {
+      setError('Password is required');
+      return;
+    }
     setError('');
     setLoading(true);
     try {
@@ -31,7 +47,8 @@ export default function Login() {
       login(data.token, data.client);
       navigate('/');
     } catch (err) {
-      setError(err.response?.data?.error || 'Kuch masla hua');
+      setError(err.response?.data?.error || 'Error');
+      
     } finally {
       setLoading(false);
     }
@@ -52,17 +69,15 @@ export default function Login() {
         <div className="flex bg-gray-100 rounded-lg p-1 mb-6">
           <button
             onClick={() => setIsRegister(false)}
-            className={`flex-1 py-2 rounded-md text-sm font-medium transition-all ${
-              !isRegister ? 'bg-white shadow text-blue-600' : 'text-gray-500'
-            }`}
+            className={`flex-1 py-2 rounded-md text-sm font-medium transition-all ${!isRegister ? 'bg-white shadow text-blue-600' : 'text-gray-500'
+              }`}
           >
             Login
           </button>
           <button
             onClick={() => setIsRegister(true)}
-            className={`flex-1 py-2 rounded-md text-sm font-medium transition-all ${
-              isRegister ? 'bg-white shadow text-blue-600' : 'text-gray-500'
-            }`}
+            className={`flex-1 py-2 rounded-md text-sm font-medium transition-all ${isRegister ? 'bg-white shadow text-blue-600' : 'text-gray-500'
+              }`}
           >
             Register
           </button>
@@ -94,6 +109,7 @@ export default function Login() {
 
           <input
             type="email"
+            required
             placeholder="Email address"
             value={form.email}
             onChange={e => setForm({ ...form, email: e.target.value })}
@@ -102,6 +118,7 @@ export default function Login() {
 
           <input
             type="password"
+            required
             placeholder="Password"
             value={form.password}
             onChange={e => setForm({ ...form, password: e.target.value })}

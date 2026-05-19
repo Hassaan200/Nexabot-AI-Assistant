@@ -15,7 +15,7 @@ const app = express();
 app.use(cors({
   origin: [
     'http://localhost:5005',
-    'https://tumhara-frontend.vercel.app',
+    'https://nexabot-ai-assistant-seven.vercel.app',
     '*'
   ],
   credentials: true,

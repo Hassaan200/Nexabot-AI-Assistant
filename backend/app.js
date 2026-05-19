@@ -12,7 +12,14 @@ import dashboardRoutes from './src/routes/dashboard.js';
 
 dotenv.config();
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: [
+    'http://localhost:5173',
+    'https://nexabot-ai-assistant-seven.vercel.app',
+    '*'
+  ],
+  credentials: true,
+}));
 app.use(express.json());
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 

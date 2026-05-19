@@ -1,28 +1,21 @@
 import express from 'express';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { readFileSync } from 'fs';
 import pool from '../config/db.js';
 
 const router = express.Router();
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 router.get('/', async (req, res) => {
   try {
     const { key } = req.query;
 
-    // Default settings
     let widgetName = 'AI Assistant';
     let widgetColor = '#2563eb';
+    const serverUrl = process.env.SERVER_URL || 'http://localhost:3000';
 
-    // API key se client ki settings lo
     if (key) {
       const [clients] = await pool.query(
-        'SELECT widget_name, widget_color FROM clients WHERE api_key = ? AND is_active = true',
+        'SELECT widget_name, widget_color FROM clients WHERE api_key = ? AND is_active = 1',
         [key]
       );
-
       if (clients.length > 0) {
         widgetName = clients[0].widget_name;
         widgetColor = clients[0].widget_color;

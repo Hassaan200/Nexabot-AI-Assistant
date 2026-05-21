@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const AuthContext = createContext(null);
 
@@ -19,6 +20,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('nexabot_token', token);
     localStorage.setItem('nexabot_client', JSON.stringify(clientData));
     setClient(clientData);
+    
   };
 
   const logout = () => {

@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard';
 import Bookings from './pages/Bookings';
 import Conversations from './pages/Conversations';
 import Settings from './pages/Settings';
+import Landing from './pages/Landing';
 
 const ProtectedLayout = ({ children }) => {
   const { client, loading } = useAuth();
@@ -35,8 +36,9 @@ export default function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
+          <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/" element={
+          <Route path="/dashboard" element={
             <ProtectedLayout><Dashboard /></ProtectedLayout>
           } />
           <Route path="/bookings" element={

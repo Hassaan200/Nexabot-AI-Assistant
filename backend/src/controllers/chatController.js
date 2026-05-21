@@ -106,8 +106,16 @@ const chat = async (req, res) => {
 
         // Booking intent detect karo normal mode mein
         if (sessionState.mode === 'normal') {
-            const bookingWords = ['appointment', 'booking', 'book', 'appoint',
-                'schedule', 'milna', 'visit', 'consultation'];
+            const bookingWords = [
+                // Appointment
+                'appointment', 'booking', 'book', 'appoint', 'schedule', 'milna', 'visit',
+                // Restaurant/Order  
+                'order', 'delivery', 'deliver', 'khana', 'food', 'manga', 'mangwana',
+                // Salon
+                'haircut', 'service', 'treatment',
+                // General
+                'reserve', 'consultation', 'inquiry'
+            ];
             const wantsBooking = bookingWords.some(w =>
                 message.toLowerCase().includes(w)
             );

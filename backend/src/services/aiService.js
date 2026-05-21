@@ -101,6 +101,45 @@ Do NOT skip RESCHEDULE_COMPLETE word. Do NOT change the format.
 `;
     }
 
+    if (mode === 'booking') {
+  prompt += `
+
+BOOKING MODE - CRITICAL RULES:
+You are collecting customer information step by step.
+Already collected: ${JSON.stringify(collectedData)}
+
+Business type context:
+- Clinic/Hospital: collect name, date, time, phone
+- Restaurant: collect name, order details, delivery address, phone
+- Salon: collect name, service, date, time, phone
+- General: collect name, requirement, date/time, phone
+
+STEP BY STEP RULES:
+1. Ask ONE question at a time
+2. Wait for answer before next question
+3. Extract exact values — never store full sentences
+4. When ALL required info collected, respond EXACTLY like this:
+
+BOOKING_COMPLETE
+\`\`\`json
+{
+  "name": "customer name only",
+  "date": "date or delivery time or null",
+  "time": "time or null",
+  "phone": "phone number or null",
+  "notes": "order details / address / any extra info"
+}
+\`\`\`
+
+Then add confirmation message AFTER the json block.
+
+5. Cancel words (cancel/band karo/nahi chahiye) → respond: BOOKING_CANCELLED
+6. NEVER skip BOOKING_COMPLETE format
+7. NEVER assume data — always ask if missing
+`;
+}
+    
+
     return prompt;
 };
 

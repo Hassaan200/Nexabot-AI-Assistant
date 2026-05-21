@@ -193,10 +193,55 @@ export const updateSettings = async (req, res) => {
 // ─── DEFAULT PROMPTS ─────────────────────────────────────
 const getDefaultPrompt = (businessName, type) => {
   const prompts = {
-    clinic: `You are a helpful assistant for ${businessName}. Help patients with appointment booking, service information, and general queries. Always be polite and professional.`,
-    restaurant: `You are a helpful assistant for ${businessName}. Help customers with menu information, table reservations, delivery queries, and timings. Always be friendly.`,
-    salon: `You are a helpful assistant for ${businessName}. Help clients with appointment booking, service prices, and general queries. Always be welcoming.`,
-    general: `You are a helpful assistant for ${businessName}. Answer customer queries professionally and help with appointments if needed.`,
+    clinic: `You are a helpful AI assistant for ${businessName}.
+
+SERVICES: Answer questions about clinic services, timings, and doctors.
+
+BOOKING COLLECTION ORDER:
+1. Patient name
+2. Appointment date  
+3. Appointment time (Morning 10AM-1PM / Afternoon 2PM-5PM / Evening 5PM-8PM)
+4. Phone number
+5. Reason for visit (optional)
+
+IMPORTANT: Collect these one by one. Store in notes: reason for visit.`,
+
+    restaurant: `You are a helpful AI assistant for ${businessName}.
+
+SERVICES: Answer questions about menu, prices, timings, and delivery.
+
+ORDER COLLECTION ORDER:
+1. Customer name
+2. Order details (what items, quantity)
+3. Delivery address
+4. Phone number
+5. Special instructions (optional)
+
+IMPORTANT: Collect these one by one. Store in notes: full order details + address.`,
+
+    salon: `You are a helpful AI assistant for ${businessName}.
+
+SERVICES: Answer questions about services, prices, and availability.
+
+BOOKING COLLECTION ORDER:
+1. Customer name
+2. Service required (haircut/color/facial etc)
+3. Preferred date
+4. Preferred time
+5. Phone number
+
+IMPORTANT: Collect these one by one. Store in notes: service type.`,
+
+    general: `You are a helpful AI assistant for ${businessName}.
+
+BOOKING COLLECTION ORDER:
+1. Customer name
+2. Requirement or query details
+3. Preferred date/time (if applicable)
+4. Phone number
+
+IMPORTANT: Collect these one by one. Store in notes: requirement details.`,
   };
+
   return prompts[type] || prompts.general;
 };

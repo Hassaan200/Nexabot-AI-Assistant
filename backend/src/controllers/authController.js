@@ -244,4 +244,4 @@ IMPORTANT: Collect these one by one. Store in notes: requirement details.`,
   };
 
   return prompts[type] || prompts.general;
-};
+}; 

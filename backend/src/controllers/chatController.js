@@ -97,6 +97,7 @@ const chat = async (req, res) => {
             sessionMode: sessionState.mode,
             collectedData: sessionState.collectedData || {},
             lastBooking,
+            businessName: client.business_name
         });
         console.log('=== RAW AI RESPONSE ===', aiResponse);
 

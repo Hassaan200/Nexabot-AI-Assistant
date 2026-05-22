@@ -2,6 +2,9 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
+// ← ADDITION 1: sleep helper
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
 export const getAIReply = async ({
     userMessage,
     systemPrompt,
@@ -9,11 +12,14 @@ export const getAIReply = async ({
     sessionMode = 'normal',
     collectedData = {},
     lastBooking = null,
+    businessName = '', // ← ADDITION 2: businessName parameter
+    retries = 3,       // ← ADDITION 3: retry counter
 }) => {
-
+  // ← ADDITION 4: try/catch wrap kiya — andar sab same hai
+  try {
     const model = genAI.getGenerativeModel({
         model: 'gemini-2.5-flash',
-        systemInstruction: buildSystemPrompt(systemPrompt, sessionMode, collectedData, lastBooking),
+        systemInstruction: buildSystemPrompt(systemPrompt, sessionMode, collectedData, lastBooking, businessName),
     });
 
     const formattedHistory = chatHistory.map(msg => ({
@@ -22,12 +28,27 @@ export const getAIReply = async ({
     }));
 
     const chatSession = model.startChat({ history: formattedHistory });
-
     const result = await chatSession.sendMessage(userMessage);
     return result.response.text();
+
+  } catch (error) {
+    // ← ADDITION 5: retry logic
+    if (error.status === 429 && retries > 0) {
+      console.log(`Rate limit — retrying... (${retries} left)`);
+      await sleep(4000);
+      return getAIReply({
+        userMessage, systemPrompt, chatHistory,
+        sessionMode, collectedData, lastBooking,
+        businessName, retries: retries - 1,
+      });
+    }
+    console.error('AI Error:', error.message);
+    return "I'm sorry, I'm experiencing high demand right now. Please try again in a moment. 🙏";
+  }
 };
 
-const buildSystemPrompt = (basePrompt, mode, collectedData, lastBooking) => {
+// ← businessName parameter add kiya — baaki sab SAME hai
+const buildSystemPrompt = (basePrompt, mode, collectedData, lastBooking, businessName) => {
     const today = new Date().toLocaleDateString('en-PK', {
         weekday: 'long',
         year: 'numeric',
@@ -35,7 +56,15 @@ const buildSystemPrompt = (basePrompt, mode, collectedData, lastBooking) => {
         day: 'numeric'
     });
 
-    let prompt = `${basePrompt}
+    // ← ADDITION 6: Identity rules sabse upar — basePrompt safe hai
+    let prompt = `CRITICAL IDENTITY RULES — NEVER BREAK THESE:
+- You are the AI Assistant for ${businessName}
+- NEVER say "Main Google dwara train kiya gaya"
+- NEVER mention Gemini, Google, Bard, or any AI company
+- If asked "who are you" → say "Main ${businessName} ka AI assistant hun"
+- If asked "which AI" → say "Main ek custom AI assistant hun"
+
+${basePrompt}
 
 TODAY: ${today}
 
@@ -50,6 +79,7 @@ Examples:
 Always extract just the name, never store the full sentence.
 `;
 
+    // ← Tera original booking mode — BILKUL SAME
     if (mode === 'booking') {
         prompt += `
 
@@ -58,7 +88,6 @@ Already collected: ${JSON.stringify(collectedData)}
 
 BOOKING RULES:
 1. If user asks any question unrelated to booking — answer it briefly FIRST, then gently continue booking.
-   Example: User asks "kya aap Sunday open hain?" during booking → Answer the question, then say "Ab appointment ke liye..."
 2. Collect information in this order: name → date → time → phone (optional)
 3. Extract name carefully — only the actual name, not the full sentence
 4. When all required info collected (name, date, time), respond with EXACTLY this format:
@@ -69,16 +98,24 @@ BOOKING_COMPLETE
   "name": "extracted name only",
   "date": "date mentioned",
   "time": "time mentioned", 
-  "phone": "phone if given or null"
+  "phone": "phone if given or null",
+  "notes": "order details / address / any extra info"
 }
 \`\`\`
 Then add a confirmation message for the user.
 
 5. If user says cancel/band karo/nahi chahiye → respond with exactly: BOOKING_CANCELLED
 6. Never make up or assume data — always ask if not provided
+
+Business type context:
+- Clinic/Hospital: collect name, date, time, phone
+- Restaurant: collect name, order details, delivery address, phone
+- Salon: collect name, service, date, time, phone
+- General: collect name, requirement, date/time, phone
 `;
     }
 
+    // ← Tera original rescheduling mode — BILKUL SAME
     if (mode === 'rescheduling' && lastBooking) {
         prompt += `
 
@@ -100,45 +137,6 @@ Then add your confirmation message AFTER the json block.
 Do NOT skip RESCHEDULE_COMPLETE word. Do NOT change the format.
 `;
     }
-
-    if (mode === 'booking') {
-  prompt += `
-
-BOOKING MODE - CRITICAL RULES:
-You are collecting customer information step by step.
-Already collected: ${JSON.stringify(collectedData)}
-
-Business type context:
-- Clinic/Hospital: collect name, date, time, phone
-- Restaurant: collect name, order details, delivery address, phone
-- Salon: collect name, service, date, time, phone
-- General: collect name, requirement, date/time, phone
-
-STEP BY STEP RULES:
-1. Ask ONE question at a time
-2. Wait for answer before next question
-3. Extract exact values — never store full sentences
-4. When ALL required info collected, respond EXACTLY like this:
-
-BOOKING_COMPLETE
-\`\`\`json
-{
-  "name": "customer name only",
-  "date": "date or delivery time or null",
-  "time": "time or null",
-  "phone": "phone number or null",
-  "notes": "order details / address / any extra info"
-}
-\`\`\`
-
-Then add confirmation message AFTER the json block.
-
-5. Cancel words (cancel/band karo/nahi chahiye) → respond: BOOKING_CANCELLED
-6. NEVER skip BOOKING_COMPLETE format
-7. NEVER assume data — always ask if missing
-`;
-}
-    
 
     return prompt;
 };

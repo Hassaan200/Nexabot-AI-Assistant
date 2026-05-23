@@ -364,7 +364,7 @@ export default function Landing() {
                         <span className="font-bold text-gray-700">NexaBot</span>
                     </div>
                     <p className="text-sm text-gray-400">
-                        © 2025 NexaBot. AI Assistant Platform for Pakistani Businesses.
+                        © 2026 NexaBot. AI Assistant Platform for Pakistani Businesses.
                     </p>
                     <div className="flex gap-6 text-sm text-gray-400">
                         <a href="#" className="hover:text-blue-600">Privacy</a>

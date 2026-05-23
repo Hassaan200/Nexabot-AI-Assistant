@@ -2,7 +2,7 @@
 
 > Add a 24/7 AI assistant to any business website in 60 seconds.
 
-[![Live Demo](https://img.shields.io/badge/Live-Demo-blue)](https://nexabot-ai.vercel.app)
+[![Live Demo](https://img.shields.io/badge/Live-Demo-blue)](https://nexabot-ai-assistant-seven.vercel.app/)
 [![Backend](https://img.shields.io/badge/Backend-Vercel-black)](https://nexabot-ai-assistant.vercel.app)
 
 ---
@@ -156,7 +156,7 @@ Pakistani small businesses:
 ## 👨‍💻 Built By
 
 **Hassan** — Full Stack Developer  
-[GitHub](https://github.com/username) · [LinkedIn](https://linkedin.com/in/username)
+[GitHub](https://github.com/Hassaan200) · [LinkedIn](https://www.linkedin.com/in/hassaan-khaliq-a93921281)
 
 ---
 

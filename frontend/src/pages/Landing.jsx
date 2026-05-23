@@ -15,7 +15,7 @@ export default function Landing() {
     const demoReplies = {
         'appointment': '📅 Sure! Could you please tell me your name?',
         'timing': '🕐 We are open Monday-Saturday, 10 AM - 8 PM. Closed on Sundays.',
-        'price': '💰 Teeth Cleaning: Rs. 2000, Filling: Rs. 2500, Extraction: Rs. 3000',
+        'price': '💰 Teeth Cleaning: $100, Filling:  $200, Extraction: $300',
         'hello': '👋 Hello! How can I help you today?',
         'hi': '👋 Hi! How can I assist you?',
         'default': '🤖 I can be fully customized for your business! I handle appointment bookings, FAQs, lead capture — and much more!'
@@ -53,7 +53,7 @@ export default function Landing() {
         },
         {
             name: 'Starter',
-            price: 'Rs. 3,000',
+            price: '$99',
             period: 'per month',
             color: 'border-blue-500 shadow-xl shadow-blue-100',
             badge: 'Most Popular',
@@ -63,7 +63,7 @@ export default function Landing() {
         },
         {
             name: 'Business',
-            price: 'Rs. 8,000',
+            price: '$299',
             period: 'per month',
             color: 'border-purple-500',
             btn: 'bg-purple-600 text-white',
@@ -288,7 +288,7 @@ export default function Landing() {
                             },
                             {
                                 name: 'Starter',
-                                price: '$299',
+                                price: '$99',
                                 period: 'per month',
                                 color: 'border-blue-500 shadow-xl shadow-blue-100',
                                 badge: 'Most Popular',
@@ -297,7 +297,7 @@ export default function Landing() {
                             },
                             {
                                 name: 'Business',
-                                price: '$499',
+                                price: '$299',
                                 period: 'per month',
                                 color: 'border-purple-500',
                                 btn: 'bg-purple-600 text-white',

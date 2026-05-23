@@ -7,6 +7,9 @@ import Bookings from './pages/Bookings';
 import Conversations from './pages/Conversations';
 import Settings from './pages/Settings';
 import Landing from './pages/Landing';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
+
 
 const ProtectedLayout = ({ children }) => {
   const { client, loading } = useAuth();
@@ -51,6 +54,8 @@ export default function App() {
           <Route path="/settings" element={
             <ProtectedLayout><Settings /></ProtectedLayout>
           } />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

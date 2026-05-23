@@ -3,6 +3,9 @@ import jwt from 'jsonwebtoken';
 import pool from '../config/db.js';
 import generateApiKey from '../utils/generateApiKey.js';
 import dotenv from 'dotenv';
+import crypto from 'crypto'
+import { Resend } from 'resend';
+const resend = new Resend(process.env.RESEND_API_KEY);
 dotenv.config();
 
 // ─── REGISTER ───────────────────────────────────────────
@@ -12,14 +15,14 @@ export const register = async (req, res) => {
 
     // Validation
     if (!business_name || !email || !password) {
-      return res.status(400).json({ 
-        error: 'business_name, email aur password zaroori hain' 
+      return res.status(400).json({
+        error: 'business_name, email aur password zaroori hain'
       });
     }
 
     if (password.length < 6) {
-      return res.status(400).json({ 
-        error: 'Password kam se kam 6 characters ka hona chahiye' 
+      return res.status(400).json({
+        error: 'Password kam se kam 6 characters ka hona chahiye'
       });
     }
 
@@ -30,8 +33,8 @@ export const register = async (req, res) => {
     );
 
     if (existing.length > 0) {
-      return res.status(409).json({ 
-        error: 'Yeh email already registered hai' 
+      return res.status(409).json({
+        error: 'Yeh email already registered hai'
       });
     }
 
@@ -92,8 +95,8 @@ export const login = async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res.status(400).json({ 
-        error: 'Email and password are required' 
+      return res.status(400).json({
+        error: 'Email and password are required'
       });
     }
 
@@ -176,8 +179,8 @@ export const updateSettings = async (req, res) => {
     const { system_prompt, widget_name, widget_color } = req.body;
 
     if (!system_prompt || !widget_name) {
-      return res.status(400).json({ 
-        error: 'system_prompt aur widget_name are required' 
+      return res.status(400).json({
+        error: 'system_prompt aur widget_name are required'
       });
     }
 
@@ -196,7 +199,7 @@ export const updateSettings = async (req, res) => {
       [req.clientId]
     );
 
-    res.json({ 
+    res.json({
       message: 'Settings updated!',
       client: clients[0]
     });
@@ -261,4 +264,125 @@ IMPORTANT: Collect these one by one. Store in notes: requirement details.`,
   };
 
   return prompts[type] || prompts.general;
-}; 
+};
+
+// Forgot password — reset link bhejo
+export const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: 'Email required!' });
+    }
+
+    const [clients] = await pool.query(
+      'SELECT * FROM clients WHERE email = ?',
+      [email]
+    );
+
+    // Security: email exist kare ya na kare — same response
+    if (clients.length === 0) {
+      return res.json({
+        message: 'Agar email registered hai toh reset link bhej diya gaya hai.'
+      });
+    }
+
+    // Reset token banao
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetExpiry = new Date(Date.now() + 3600000); // 1 hour
+
+    await pool.query(
+      `UPDATE clients 
+       SET reset_token = ?, reset_token_expiry = ?
+       WHERE email = ?`,
+      [resetToken, resetExpiry, email]
+    );
+
+    // Reset link
+    const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
+
+    await resend.emails.send({
+      from: 'NexaBot <onboarding@resend.dev>',
+      to: email,
+      subject: 'NexaBot — Password Reset Request',
+      html: `
+    <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
+      <div style="background: #2563eb; padding: 24px; border-radius: 12px 12px 0 0; text-align: center;">
+        <h1 style="color: white; margin: 0; font-size: 24px;">🤖 NexaBot</h1>
+      </div>
+      <div style="background: #f8fafc; padding: 32px; border-radius: 0 0 12px 12px;">
+        <h2 style="color: #1e293b; margin-top: 0;">Password Reset Request</h2>
+        <p style="color: #64748b;">
+          Aapne password reset request ki hai. Neeche button pe click karein:
+        </p>
+        <a href="${resetLink}" 
+           style="display: inline-block; background: #2563eb; color: white; 
+                  padding: 12px 24px; border-radius: 8px; text-decoration: none;
+                  font-weight: bold; margin: 16px 0;">
+          Reset Password
+        </a>
+        <p style="color: #94a3b8; font-size: 12px; margin-top: 24px;">
+          Yeh link 1 ghante mein expire ho jaayega.<br/>
+          Agar aapne request nahi ki toh ignore karein.
+        </p>
+      </div>
+    </div>
+  `
+    });
+
+    res.json({
+      message: 'Password reset link sent!.',
+      // Dev ke liye — production mein hata dena
+      // dev_link: resetLink
+    });
+ 
+  } catch (error) {
+    console.error('Forgot password error:', error.message);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+// Reset password
+export const resetPassword = async (req, res) => {
+  try {
+    const { token, password } = req.body;
+
+    if (!token || !password) {
+      return res.status(400).json({ error: 'Token and password required!' });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ error: 'Password required atleast 6 characters' });
+    }
+
+    // Token valid hai?
+    const [clients] = await pool.query(
+      `SELECT * FROM clients 
+       WHERE reset_token = ? 
+       AND reset_token_expiry > NOW()`,
+      [token]
+    );
+
+    if (clients.length === 0) {
+      return res.status(400).json({
+        error: 'Reset link invalid or expired. Try again.'
+      });
+    }
+
+    // Password update karo
+    const password_hash = await bcrypt.hash(password, 12);
+
+    await pool.query(
+      `UPDATE clients 
+       SET password_hash = ?, reset_token = NULL, reset_token_expiry = NULL
+       WHERE id = ?`,
+      [password_hash, clients[0].id]
+    );
+
+    res.json({ message: 'Password reset Successfully Now you can login' });
+
+  } catch (error) {
+    console.error('Reset password error:', error.message);
+    res.status(500).json({ error: 'Server error' });
+  }
+};

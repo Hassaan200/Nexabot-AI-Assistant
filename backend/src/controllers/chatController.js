@@ -31,6 +31,28 @@ const chat = async (req, res) => {
 
         const client = clients[0];
 
+        // Plan active hai?
+        if (!client.is_active) {
+            return res.status(403).json({
+                error: 'Your subscription has ended. Please upgrade your plan.',
+                code: 'PLAN_EXPIRED'
+            });
+        }
+
+        // Message limit check
+        if (client.messages_used >= client.messages_limit) {
+            return res.status(429).json({
+                error: 'Monthly message limit reached. Please upgrade your plan.',
+                code: 'LIMIT_REACHED'
+            });
+        }
+
+        // Message count update karo — response bhejne se pehle
+        await pool.query(
+            'UPDATE clients SET messages_used = messages_used + 1 WHERE id = ?',
+            [client.id]
+        );
+
         // 2. Conversation lo ya banao
         const [conversations] = await pool.query(
             'SELECT * FROM conversations WHERE session_id = ? AND client_id = ?',

@@ -8,6 +8,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import authRoutes from './src/routes/auth.js'
 import dashboardRoutes from './src/routes/dashboard.js';
+import adminRoutes from './src/routes/admin.js';
 
 
 dotenv.config();
@@ -15,6 +16,7 @@ const app = express();
 app.use(cors({
   origin: [
     'http://localhost:5005',
+    'http://192.168.43.37:5005',
     'https://nexabot-ai-assistant-seven.vercel.app',
     '*'
   ],
@@ -32,6 +34,8 @@ app.use('/api/chat', router);
 app.use('/widget.js', widgetRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/admin', adminRoutes);
+
 
 app.use(express.static(path.join(__dirname, 'public')));
 

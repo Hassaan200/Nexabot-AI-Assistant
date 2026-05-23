@@ -5,8 +5,9 @@ export default function Landing() {
     const navigate = useNavigate();
     const [demoOpen, setDemoOpen] = useState(false);
     const [messages, setMessages] = useState([
-        { role: 'bot', text: "Assalam-o-Alaikum! I am the AI assistant for Hassan Clinic. How can I help you today? 🏥"
- }
+        {
+            role: 'bot', text: "Assalam-o-Alaikum! I am the AI assistant for Hassan Clinic. How can I help you today? 🏥"
+        }
     ]);
     const [input, setInput] = useState('');
     const [typing, setTyping] = useState(false);
@@ -39,6 +40,51 @@ export default function Landing() {
             setMessages(prev => [...prev, { role: 'bot', text: getDemoReply(userMsg) }]);
         }, 1000);
     };
+
+    const plans = [
+        {
+            name: 'Trial',
+            price: 'Free',
+            period: '14 days',
+            color: 'border-gray-200',
+            btn: 'bg-gray-100 text-gray-700',
+            whatsapp: null, // Free — seedha register
+            features: ['1 website', 'Basic AI', '100 messages/month', 'Appointment booking'],
+        },
+        {
+            name: 'Starter',
+            price: 'Rs. 3,000',
+            period: 'per month',
+            color: 'border-blue-500 shadow-xl shadow-blue-100',
+            badge: 'Most Popular',
+            btn: 'bg-blue-600 text-white',
+            whatsapp: 'Starter', // WhatsApp pe bhejo
+            features: ['1 website', 'Advanced AI', '2,000 messages/month', 'Lead capture', 'Priority support'],
+        },
+        {
+            name: 'Business',
+            price: 'Rs. 8,000',
+            period: 'per month',
+            color: 'border-purple-500',
+            btn: 'bg-purple-600 text-white',
+            whatsapp: 'Business',
+            features: ['3 websites', 'Premium AI', '10,000 messages/month', 'Custom branding', 'Dedicated support'],
+        },
+    ];
+
+    // Button click handler
+    const handlePlanClick = (plan) => {
+  if (plan.name === 'Trial') {
+    navigate('/login');
+    return;
+  }
+
+  const phone = '+92 3359554095'; // apna number
+  const msg = encodeURIComponent(
+    `Hi! I want to subscribe to NexaBot ${plan.name} Plan (${plan.price}/month). Please activate it for me.`
+  );
+  window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+};
 
     return (
         <div className="min-h-screen bg-white font-sans">
@@ -277,10 +323,14 @@ export default function Landing() {
                                     ))}
                                 </ul>
                                 <button
-                                    onClick={() => navigate('/login')}
-                                    className={`w-full py-3 rounded-xl font-medium text-sm ${plan.btn} hover:opacity-90 transition-all`}
+                                    onClick={() => handlePlanClick(plan)}
+                                    className={`w-full py-3 rounded-xl font-medium cursor-pointer text-sm ${plan.btn}`}
                                 >
-                                    Get Started
+                                   {
+                                    plan.name !== "Trial"
+                                    ? "💬 Subscribe via WhatsApp"
+                                   : "Start Free Trial"
+                                   }
                                 </button>
                             </div>
                         ))}

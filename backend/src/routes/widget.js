@@ -157,10 +157,15 @@ router.get('/', async (req, res) => {
       });
       const data = await res.json();
       hideTyping();
+      // Limit reached check
+if (data.code === 'LIMIT_REACHED') {
+  addMessage('bot', '⚠️ Service temporarily unavailable. Please contact us directly.');
+  return;
+}
       addMessage('bot', data.reply || 'Kuch masla hua, dobara try karein.');
     } catch (err) {
       hideTyping();
-      addMessage('bot', 'Connection error, dobara try karein.');
+      addMessage('bot', 'Connection error,  try again.');
     }
   };
 

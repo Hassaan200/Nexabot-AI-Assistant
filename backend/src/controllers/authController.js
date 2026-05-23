@@ -175,6 +175,12 @@ export const updateSettings = async (req, res) => {
   try {
     const { system_prompt, widget_name, widget_color } = req.body;
 
+    if (!system_prompt || !widget_name) {
+      return res.status(400).json({ 
+        error: 'system_prompt aur widget_name are required' 
+      });
+    }
+
     await pool.query(
       `UPDATE clients 
        SET system_prompt = ?, widget_name = ?, widget_color = ?
@@ -182,7 +188,18 @@ export const updateSettings = async (req, res) => {
       [system_prompt, widget_name, widget_color, req.clientId]
     );
 
-    res.json({ message: 'Settings update ho gayi!' });
+    // Updated client data wapas bhejo
+    const [clients] = await pool.query(
+      `SELECT id, business_name, email, api_key, widget_name, 
+              widget_color, plan, trial_ends_at, system_prompt
+       FROM clients WHERE id = ?`,
+      [req.clientId]
+    );
+
+    res.json({ 
+      message: 'Settings updated!',
+      client: clients[0]
+    });
 
   } catch (error) {
     console.error('Settings error:', error.message);

@@ -28,12 +28,20 @@ export const getStats = async (req, res) => {
       [clientId]
     );
 
+    const [[clientInfo]] = await pool.query(
+      'SELECT messages_used, messages_limit, plan, trial_ends_at FROM clients WHERE id = ?',
+      [clientId]
+    );
+
     res.json({
       stats: {
         total_conversations: totalConversations.count,
         total_bookings: totalBookings.count,
         today_bookings: todayBookings.count,
         total_messages: totalMessages.count,
+        messages_used: clientInfo.messages_used,
+        messages_limit: clientInfo.messages_limit,
+        plan: clientInfo.plan,
       }
     });
 

@@ -18,8 +18,20 @@ export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     setError('');
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(form.email)) {
+      return setError('Please enter a valid email address');
+    }
+
+    // Password validation
+    if (form.password.length < 6) {
+      return setError('Password must be at least 6 characters');
+    }
     setLoading(true);
     try {
       const endpoint = isRegister ? '/auth/register' : '/auth/login';
@@ -31,7 +43,7 @@ export default function Login() {
       login(data.token, data.client);
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.error || 'Kuch masla hua');
+      setError(err.response?.data?.error || 'Network Error');
     } finally {
       setLoading(false);
     }
@@ -50,17 +62,15 @@ export default function Login() {
         <div className="flex bg-gray-100 rounded-lg p-1 mb-6">
           <button
             onClick={() => { setIsRegister(false); setError(''); }}
-            className={`flex-1 py-2 rounded-md text-sm font-medium transition-all ${
-              !isRegister ? 'bg-white shadow text-blue-600' : 'text-gray-500'
-            }`}
+            className={`flex-1 py-2 rounded-md text-sm font-medium transition-all ${!isRegister ? 'bg-white shadow text-blue-600' : 'text-gray-500'
+              }`}
           >
             Login
           </button>
           <button
             onClick={() => { setIsRegister(true); setError(''); }}
-            className={`flex-1 py-2 rounded-md text-sm font-medium transition-all ${
-              isRegister ? 'bg-white shadow text-blue-600' : 'text-gray-500'
-            }`}
+            className={`flex-1 py-2 rounded-md text-sm font-medium transition-all ${isRegister ? 'bg-white shadow text-blue-600' : 'text-gray-500'
+              }`}
           >
             Register
           </button>
@@ -104,7 +114,11 @@ export default function Login() {
               placeholder="Password"
               value={form.password}
               onChange={e => setForm({ ...form, password: e.target.value })}
-              onKeyDown={e => e.key === 'Enter' && handleSubmit()}
+              onKeyDown={e => {
+                if (e.key === 'Enter') {
+                  handleSubmit(e);
+                }
+              }}
               className="w-full border border-gray-200 rounded-lg px-4 py-3 pr-12 text-sm outline-none focus:border-blue-400"
             />
             <button
@@ -135,9 +149,10 @@ export default function Login() {
           )}
 
           <button
+            type="button"
             onClick={handleSubmit}
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-all disabled:opacity-50"
+            className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-all disabled:opacity-50 cursor-pointer"
           >
             {loading ? 'Please wait...' : isRegister ? 'Create Account' : 'Login'}
           </button>

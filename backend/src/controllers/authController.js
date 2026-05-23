@@ -282,10 +282,10 @@ export const forgotPassword = async (req, res) => {
 
     // Security: email exist kare ya na kare — same response
     if (clients.length === 0) {
-      return res.json({
-        message: 'Agar email registered hai toh reset link bhej diya gaya hai.'
-      });
-    }
+  return res.status(404).json({ 
+    error: 'This email is not registered. Please check and try again.' 
+  });
+}
 
     // Reset token banao
     const resetToken = crypto.randomBytes(32).toString('hex');

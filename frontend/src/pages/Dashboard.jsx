@@ -11,7 +11,7 @@ const StatCard = ({ icon, label, value }) => (
 );
 
 export default function Dashboard() {
-  const { client } = useAuth();
+  const { client, login } = useAuth();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
@@ -23,6 +23,14 @@ export default function Dashboard() {
       .then(({ data }) => setStats(data.stats))
       .catch(console.error)
       .finally(() => setLoading(false));
+
+    // Fresh profile lo — plan update reflect karne ke liye
+    api.get('/auth/profile')
+      .then(({ data }) => {
+        const token = localStorage.getItem('nexabot_token');
+        login(token, { ...data.client });
+      })
+      .catch(console.error);
   }, []);
 
   const scriptTag = `<script src="${backendUrl}/widget.js?key=${client?.api_key}" data-api-key="${client?.api_key}"></script>`;

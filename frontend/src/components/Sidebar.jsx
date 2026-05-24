@@ -93,7 +93,7 @@ export default function Sidebar() {
               Plan: {client?.plan?.toUpperCase()}
             </p>
             <p className="text-xs text-gray-400 mt-1">
-              {client?.plan === 'trial' ? '14 day free trial' : 'Active subscription'}
+              {client?.plan === 'trial' ? '7 day free trial' : 'Active subscription'}
             </p>
           </div>
           <button

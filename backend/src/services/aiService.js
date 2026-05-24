@@ -29,6 +29,7 @@ export const getAIReply = async ({
   // ← ADDITION 4: try/catch wrap kiya — andar sab same hai
   try {
     const selectedModel = getModelForPlan(clientPlan);
+    console.log(`Client plan: ${clientPlan} | Model: ${selectedModel}`);
 
     const model = genAI.getGenerativeModel({
         model: selectedModel,
@@ -52,7 +53,7 @@ export const getAIReply = async ({
       return getAIReply({
         userMessage, systemPrompt, chatHistory,
         sessionMode, collectedData, lastBooking,
-        businessName, retries: retries - 1,
+        businessName, clientPlan, retries: retries - 1,
       });
     }
     console.error('AI Error:', error.message);

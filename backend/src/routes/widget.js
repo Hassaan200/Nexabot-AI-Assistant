@@ -158,11 +158,21 @@ router.get('/', async (req, res) => {
       const data = await res.json();
       hideTyping();
       // Limit reached check
-if (data.code === 'LIMIT_REACHED') {
-  addMessage('bot', '⚠️ Service temporarily unavailable. Please contact us directly.');
-  return;
-}
-      addMessage('bot', data.reply || 'Kuch masla hua, dobara try karein.');
+    if (data.code === 'LIMIT_REACHED') {
+    addMessage('bot', '⚠️ Service temporarily unavailable. Please contact us directly.');
+    return;
+    }
+   if (data.code === 'ACCOUNT_SUSPENDED') {
+      addMessage('bot', '⚠️ Service unavailable. Please contact support.');
+      return;
+    }
+     // Plan expired
+    if (data.code === 'PLAN_EXPIRED') {
+      addMessage('bot', '⚠️ Your plan has expired. Please renew to continue.');
+      return;
+    }
+
+      addMessage('bot', data.reply || 'Something went wrong, please try again.');
     } catch (err) {
       hideTyping();
       addMessage('bot', 'Connection error,  try again.');

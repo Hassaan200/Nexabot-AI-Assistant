@@ -29,9 +29,18 @@ export const getStats = async (req, res) => {
     );
 
     const [[clientInfo]] = await pool.query(
-      'SELECT messages_used, messages_limit, plan, trial_ends_at FROM clients WHERE id = ?',
+      'SELECT messages_used, messages_limit, plan, plan_expires_at, is_active FROM clients WHERE id = ?',
       [clientId]
     );
+
+    // Expiry check
+    const now = new Date();
+    const expiry = clientInfo.plan_expires_at
+      ? new Date(clientInfo.plan_expires_at)
+      : null;
+    const daysLeft = expiry
+      ? Math.ceil((expiry - now) / (1000 * 60 * 60 * 24))
+      : null;
 
     res.json({
       stats: {
@@ -42,6 +51,8 @@ export const getStats = async (req, res) => {
         messages_used: clientInfo.messages_used,
         messages_limit: clientInfo.messages_limit,
         plan: clientInfo.plan,
+        plan_expires_at: clientInfo.plan_expires_at,
+        days_left: daysLeft,
       }
     });
 

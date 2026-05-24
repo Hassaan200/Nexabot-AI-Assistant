@@ -44,11 +44,37 @@ export default function Dashboard() {
         <p className="text-gray-400 text-sm mt-1">{client?.business_name}</p>
       </div>
 
+      {/* Plan expiry warnings — stats load hone ke baad */}
+      {!loading && stats?.days_left !== null && stats?.days_left !== undefined && (
+        <>
+          {stats.days_left <= 0 && (
+            <div className="bg-red-100 border border-red-300 rounded-2xl p-4 mb-4">
+              <p className="text-red-700 font-bold text-sm">
+                🚫 Your plan has expired!
+              </p>
+              <p className="text-red-500 text-xs mt-1">
+                Your AI assistant is currently inactive. Please renew your plan.
+              </p>
+            </div>
+          )}
+          {stats.days_left > 0 && stats.days_left <= 5 && (
+            <div className="bg-orange-50 border border-orange-200 rounded-2xl p-4 mb-4">
+              <p className="text-orange-600 font-medium text-sm">
+                ⚠️ Your {stats.plan} plan expires in {stats.days_left} day(s)!
+              </p>
+              <p className="text-orange-400 text-xs mt-1">
+                Contact us to renew and avoid service interruption.
+              </p>
+            </div>
+          )}
+        </>
+      )}
+
       {/* Stats grid */}
       {loading ? (
         <div className="grid grid-cols-2 gap-3 mb-6">
-          {[1,2,3,4].map(i => (
-            <div key={i} className="bg-white rounded-2xl p-5 animate-pulse h-28 border border-gray-100"/>
+          {[1, 2, 3, 4].map(i => (
+            <div key={i} className="bg-white rounded-2xl p-5 animate-pulse h-28 border border-gray-100" />
           ))}
         </div>
       ) : (

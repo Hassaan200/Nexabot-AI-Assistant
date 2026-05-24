@@ -5,6 +5,16 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 // ← ADDITION 1: sleep helper
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
+// Plan ke hisaab se model select karo
+const getModelForPlan = (plan) => {
+  const models = {
+    trial: 'gemini-2.5-flash',
+    starter: 'gemini-2.5-flash',
+    business: 'gemini-2.5-pro',
+  };
+  return models[plan] || 'gemini-2.5-flash';
+};
+
 export const getAIReply = async ({
     userMessage,
     systemPrompt,
@@ -13,12 +23,15 @@ export const getAIReply = async ({
     collectedData = {},
     lastBooking = null,
     businessName = '', // ← ADDITION 2: businessName parameter
+    clientPlan = 'trial', // ← plan pass hoga
     retries = 3,       // ← ADDITION 3: retry counter
 }) => {
   // ← ADDITION 4: try/catch wrap kiya — andar sab same hai
   try {
+    const selectedModel = getModelForPlan(clientPlan);
+
     const model = genAI.getGenerativeModel({
-        model: 'gemini-2.5-flash',
+        model: selectedModel,
         systemInstruction: buildSystemPrompt(systemPrompt, sessionMode, collectedData, lastBooking, businessName),
     });
 

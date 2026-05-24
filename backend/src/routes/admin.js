@@ -18,28 +18,34 @@ router.post('/upgrade', adminAuth, async (req, res) => {
     const { email, plan } = req.body;
 
     const plans = {
-      trial: { limit: 100 },
-      starter: { limit: 2000 },
-      business: { limit: 10000 },
+      trial:    { limit: 100,   model: 'gemini-2.5-flash', days: 7 },
+      starter:  { limit: 2000,  model: 'gemini-2.5-flash', days: 30 },
+      business: { limit: 10000, model: 'gemini-2.5-pro',   days: 30 },
     };
 
     if (!plans[plan]) {
       return res.status(400).json({ error: 'Invalid plan' });
     }
 
+    const expiryDate = new Date();
+    expiryDate.setDate(expiryDate.getDate() + plans[plan].days);
+
     await pool.query(
       `UPDATE clients 
        SET plan = ?, 
            messages_limit = ?,
            messages_used = 0,
-           is_active = 1
+           is_active = 1,
+           plan_expires_at = ?
        WHERE email = ?`,
-      [plan, plans[plan].limit, email]
+      [plan, plans[plan].limit, expiryDate, email]
     );
 
-    res.json({ 
-      message: `${email} ka plan ${plan} pe upgrade ho gaya!`,
-      messages_limit: plans[plan].limit
+    res.json({
+      message: `${email} upgraded to ${plan}!`,
+      messages_limit: plans[plan].limit,
+      ai_model: plans[plan].model,
+      expires_at: expiryDate,
     });
 
   } catch (error) {

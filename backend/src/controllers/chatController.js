@@ -31,6 +31,24 @@ const chat = async (req, res) => {
 
         const client = clients[0];
 
+        // Plan expiry check
+        if (client.plan_expires_at) {
+            const now = new Date();
+            const expiry = new Date(client.plan_expires_at);
+
+            if (now > expiry) {
+                // Plan expire — account deactivate karo
+                await pool.query(
+                    'UPDATE clients SET is_active = 0 WHERE id = ?',
+                    [client.id]
+                );
+                return res.status(403).json({
+                    error: 'Your plan has expired. Please renew to continue.',
+                    code: 'PLAN_EXPIRED'
+                });
+            }
+        }
+
         // Plan active hai?
         if (!client.is_active) {
             return res.status(403).json({
@@ -119,7 +137,8 @@ const chat = async (req, res) => {
             sessionMode: sessionState.mode,
             collectedData: sessionState.collectedData || {},
             lastBooking,
-            businessName: client.business_name
+            businessName: client.business_name,
+            clientPlan: client.plan,
         });
         console.log('=== RAW AI RESPONSE ===', aiResponse);
 

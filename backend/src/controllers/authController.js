@@ -302,13 +302,13 @@ export const forgotPassword = async (req, res) => {
     const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
 
     await resend.emails.send({
-      from: 'NexaBot <onboarding@resend.dev>',
+      from: 'Veloxa <onboarding@resend.dev>',
       to: email,
-      subject: 'NexaBot — Password Reset Request',
+      subject: 'Veloxa — Password Reset Request',
       html: `
     <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
       <div style="background: #2563eb; padding: 24px; border-radius: 12px 12px 0 0; text-align: center;">
-        <h1 style="color: white; margin: 0; font-size: 24px;">🤖 NexaBot</h1>
+        <h1 style="color: white; margin: 0; font-size: 24px;">🤖 Veloxa</h1>
       </div>
       <div style="background: #f8fafc; padding: 32px; border-radius: 0 0 12px 12px;">
         <h2 style="color: #1e293b; margin-top: 0;">Password Reset Request</h2>

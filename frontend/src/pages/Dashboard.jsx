@@ -27,7 +27,7 @@ export default function Dashboard() {
     // Fresh profile lo — plan update reflect karne ke liye
     api.get('/auth/profile')
       .then(({ data }) => {
-        const token = localStorage.getItem('nexabot_token');
+        const token = localStorage.getItem('Veloxa_token');
         login(token, { ...data.client });
       })
       .catch(console.error);

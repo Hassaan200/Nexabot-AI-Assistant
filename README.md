@@ -1,21 +1,21 @@
-# 🤖 NexaBot — AI Customer Assistant Platform
+# 🤖 Veloxa — AI Customer Assistant Platform
 
 > Add a 24/7 AI assistant to any business website in 60 seconds.
 
-[![Live Demo](https://img.shields.io/badge/Live-Demo-blue)](https://nexabot-ai-assistant-seven.vercel.app/)
-[![Backend](https://img.shields.io/badge/Backend-Vercel-black)](https://nexabot-ai-assistant.vercel.app)
+[![Live Demo](https://img.shields.io/badge/Live-Demo-blue)](https://Veloxa-ai-assistant-seven.vercel.app/)
+[![Backend](https://img.shields.io/badge/Backend-Vercel-black)](https://Veloxa-ai-assistant.vercel.app)
 
 ---
 
-## 🚀 What is NexaBot?
+## 🚀 What is Veloxa?
 
-NexaBot is a **multi-tenant SaaS platform** that gives any business a 
+Veloxa is a **multi-tenant SaaS platform** that gives any business a 
 24/7 AI-powered customer assistant. One script tag — instant chatbot.
 
 **Real problems it solves:**
 - Customers ask questions at 2AM — no one replies → they leave
 - Appointment booking wastes staff time → bot handles it automatically  
-- Website visitors leave without info — NexaBot captures every lead
+- Website visitors leave without info — Veloxa captures every lead
 
 ---
 
@@ -46,7 +46,7 @@ NexaBot is a **multi-tenant SaaS platform** that gives any business a
 ---
 
 ## 📁 Project Structure
-nexabot/
+Veloxa/
 ├── backend/
 │   ├── src/
 │   │   ├── config/        # DB connection
@@ -74,7 +74,7 @@ Client pastes ONE line on their website:
 
 ```html
 <script 
-  src="https://nexabot-ai-assistant.vercel.app/widget.js?key=CLIENT_API_KEY" 
+  src="https://Veloxa-ai-assistant.vercel.app/widget.js?key=CLIENT_API_KEY" 
   data-api-key="CLIENT_API_KEY">
 </script>
 ```
@@ -113,7 +113,7 @@ GET    /api/admin/clients          # All clients (admin)
 
 ```bash
 # Clone
-git clone https://github.com/username/nexabot.git
+git clone https://github.com/username/Veloxa.git
 
 # Backend
 cd backend

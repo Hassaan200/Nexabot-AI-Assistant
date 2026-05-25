@@ -39,7 +39,7 @@ export default function Settings() {
             const { data } = await api.put('/auth/settings', form);
 
             // Auth context update karo — widget turant reflect hoga
-            const token = localStorage.getItem('nexabot_token');
+            const token = localStorage.getItem('Veloxa_token');
             login(token, { ...client, ...data.client });
 
             setSaved(true);

@@ -1,5 +1,5 @@
 -- --------------------------------------------------------
--- Host:                         nexabot-db-hassaan-ae8a.h.aivencloud.com
+-- Host:                         Veloxa-db-hassaan-ae8a.h.aivencloud.com
 -- Server version:               8.4.8 - Source distribution
 -- Server OS:                    Linux
 -- HeidiSQL Version:             12.14.0.7165
@@ -15,11 +15,11 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 
--- Dumping database structure for nexabot_db
-CREATE DATABASE IF NOT EXISTS `nexabot_db` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
-USE `nexabot_db`;
+-- Dumping database structure for Veloxa_db
+CREATE DATABASE IF NOT EXISTS `Veloxa_db` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+USE `Veloxa_db`;
 
--- Dumping structure for table nexabot_db.booking_audit
+-- Dumping structure for table Veloxa_db.booking_audit
 CREATE TABLE IF NOT EXISTS `booking_audit` (
   `id` int NOT NULL AUTO_INCREMENT,
   `booking_id` int NOT NULL,
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS `booking_audit` (
 
 -- Data exporting was unselected.
 
--- Dumping structure for table nexabot_db.bookings
+-- Dumping structure for table Veloxa_db.bookings
 CREATE TABLE IF NOT EXISTS `bookings` (
   `id` int NOT NULL AUTO_INCREMENT,
   `client_id` int NOT NULL,
@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS `bookings` (
 
 -- Data exporting was unselected.
 
--- Dumping structure for table nexabot_db.clients
+-- Dumping structure for table Veloxa_db.clients
 CREATE TABLE IF NOT EXISTS `clients` (
   `id` int NOT NULL AUTO_INCREMENT,
   `business_name` varchar(255) NOT NULL,
@@ -81,7 +81,7 @@ CREATE TABLE IF NOT EXISTS `clients` (
 
 -- Data exporting was unselected.
 
--- Dumping structure for table nexabot_db.conversations
+-- Dumping structure for table Veloxa_db.conversations
 CREATE TABLE IF NOT EXISTS `conversations` (
   `id` int NOT NULL AUTO_INCREMENT,
   `client_id` int NOT NULL,
@@ -94,7 +94,7 @@ CREATE TABLE IF NOT EXISTS `conversations` (
 
 -- Data exporting was unselected.
 
--- Dumping structure for table nexabot_db.messages
+-- Dumping structure for table Veloxa_db.messages
 CREATE TABLE IF NOT EXISTS `messages` (
   `id` int NOT NULL AUTO_INCREMENT,
   `conversation_id` int NOT NULL,

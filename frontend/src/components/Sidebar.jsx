@@ -19,7 +19,7 @@ export default function Sidebar() {
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="text-xl">🤖</span>
-          <span className="font-bold text-gray-800">NexaBot</span>
+          <span className="font-bold text-gray-800">Veloxa</span>
         </div>
         <button
           onClick={() => setOpen(!open)}
@@ -50,7 +50,7 @@ export default function Sidebar() {
           <div className="flex items-center gap-3">
             <div className="text-2xl">🤖</div>
             <div>
-              <p className="font-bold text-gray-800">NexaBot</p>
+              <p className="font-bold text-gray-800">Veloxa</p>
               <p className="text-xs text-gray-400 truncate max-w-[140px]">
                 {client?.business_name}
               </p>

@@ -26,7 +26,7 @@ app.use(express.json());
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 app.get('/', (req,res)=>{
-    res.json({message:'nexabot is ruuning!'})
+    res.json({message:'Veloxa is ruuning!'})
 });
 
 // chat route active yeha horha hai
@@ -42,6 +42,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Nexabot server is running on ${PORT}`)
+    console.log(`Veloxa server is running on ${PORT}`)
 });
  

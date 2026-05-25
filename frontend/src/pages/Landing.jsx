@@ -81,7 +81,7 @@ export default function Landing() {
 
   const phone = '+92 3359554095'; // apna number
   const msg = encodeURIComponent(
-    `Hi! I want to subscribe to NexaBot ${plan.name} Plan (${plan.price}/month). Please activate it for me.`
+    `Hi! I want to subscribe to Veloxa ${plan.name} Plan (${plan.price}/month). Please activate it for me.`
   );
   window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
 };
@@ -94,7 +94,7 @@ export default function Landing() {
                 <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                         <span className="text-2xl">🤖</span>
-                        <span className="text-xl font-bold text-gray-800">NexaBot</span>
+                        <span className="text-xl font-bold text-gray-800">Veloxa</span>
                     </div>
                     <div className="hidden md:flex items-center gap-8 text-sm text-gray-500">
                         <a href="#features" className="hover:text-blue-600 transition-colors">Features</a>
@@ -345,7 +345,7 @@ export default function Landing() {
                         Ready to grow your business?
                     </h2>
                     <p className="text-blue-100 mb-8">
-                        Join businesses already using NexaBot to serve customers 24/7
+                        Join businesses already using Veloxa to serve customers 24/7
                     </p>
                     <button
                         onClick={() => navigate('/login')}
@@ -361,10 +361,10 @@ export default function Landing() {
                 <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
                     <div className="flex items-center gap-2">
                         <span className="text-xl">🤖</span>
-                        <span className="font-bold text-gray-700">NexaBot</span>
+                        <span className="font-bold text-gray-700">Veloxa</span>
                     </div>
                     <p className="text-sm text-gray-400">
-                        © 2026 NexaBot. AI Assistant Platform for Pakistani Businesses.
+                        © 2026 Veloxa. AI Assistant Platform for Pakistani Businesses.
                     </p>
                     <div className="flex gap-6 text-sm text-gray-400">
                         <a href="#" className="hover:text-blue-600">Privacy</a>
@@ -379,7 +379,7 @@ export default function Landing() {
                 <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
                     <div className="bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl">
                         <div className="bg-blue-600 px-4 py-3 flex items-center justify-between">
-                            <span className="text-white font-medium">🤖 Try NexaBot Demo</span>
+                            <span className="text-white font-medium">🤖 Try Veloxa Demo</span>
                             <button onClick={() => setDemoOpen(false)} className="text-white/80 hover:text-white">✕</button>
                         </div>
                         <div className="h-72 overflow-y-auto p-4 space-y-3">

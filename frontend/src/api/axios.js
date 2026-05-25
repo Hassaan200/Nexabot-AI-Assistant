@@ -7,7 +7,7 @@ const api = axios.create({
 
 // Har request mein token automatically laga do
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('nexabot_token');
+  const token = localStorage.getItem('Veloxa_token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -19,8 +19,8 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('nexabot_token');
-      localStorage.removeItem('nexabot_client');
+      localStorage.removeItem('Veloxa_token');
+      localStorage.removeItem('Veloxa_client');
       window.location.href = '/login';
     }
     return Promise.reject(error);

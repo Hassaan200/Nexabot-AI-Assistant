@@ -8,8 +8,8 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const saved = localStorage.getItem('nexabot_client');
-    const token = localStorage.getItem('nexabot_token');
+    const saved = localStorage.getItem('Veloxa_client');
+    const token = localStorage.getItem('Veloxa_token');
     if (saved && token) {
       setClient(JSON.parse(saved));
     }
@@ -17,15 +17,15 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = (token, clientData) => {
-    localStorage.setItem('nexabot_token', token);
-    localStorage.setItem('nexabot_client', JSON.stringify(clientData));
+    localStorage.setItem('Veloxa_token', token);
+    localStorage.setItem('Veloxa_client', JSON.stringify(clientData));
     setClient(clientData);
     
   };
 
   const logout = () => {
-    localStorage.removeItem('nexabot_token');
-    localStorage.removeItem('nexabot_client');
+    localStorage.removeItem('Veloxa_token');
+    localStorage.removeItem('Veloxa_client');
     setClient(null);
   };
 

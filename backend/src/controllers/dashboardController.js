@@ -128,7 +128,7 @@ export const updateBookingStatus = async (req, res) => {
     );
 
     if (bookings.length === 0) {
-      return res.status(404).json({ error: 'Booking nahi mili' });
+      return res.status(404).json({ error: 'Booking not found' });
     }
 
     await pool.query(
@@ -148,7 +148,7 @@ export const updateBookingStatus = async (req, res) => {
       ]
     );
 
-    res.json({ message: `Booking ${status} ho gayi!` });
+    res.json({ message: `Booking ${status} successfully!` });
 
   } catch (error) {
     console.error('Update booking error:', error.message);
@@ -214,7 +214,7 @@ export const getConversationMessages = async (req, res) => {
     );
 
     if (conversations.length === 0) {
-      return res.status(404).json({ error: 'Conversation nahi mili' });
+      return res.status(404).json({ error: 'Conversation not found' });
     }
 
     const [messages] = await pool.query(

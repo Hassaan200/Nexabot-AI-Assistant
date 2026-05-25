@@ -16,13 +16,13 @@ export const register = async (req, res) => {
     // Validation
     if (!business_name || !email || !password) {
       return res.status(400).json({
-        error: 'business_name, email aur password zaroori hain'
+        error: 'Business name, email, and password are required'
       });
     }
 
     if (password.length < 6) {
       return res.status(400).json({
-        error: 'Password kam se kam 6 characters ka hona chahiye'
+        error: 'Password must be at least 6 characters long'
       });
     }
 
@@ -34,7 +34,7 @@ export const register = async (req, res) => {
 
     if (existing.length > 0) {
       return res.status(409).json({
-        error: 'Yeh email already registered hai'
+        error: 'This email is already registered'
       });
     }
 
@@ -162,7 +162,7 @@ export const getProfile = async (req, res) => {
     );
 
     if (clients.length === 0) {
-      return res.status(404).json({ error: 'Client nahi mila' });
+      return res.status(404).json({ error: 'Client not found' });
     }
 
     res.json({ client: clients[0] });

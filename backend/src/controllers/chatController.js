@@ -15,7 +15,7 @@ const chat = async (req, res) => {
 
         if (!message || !session_id || !api_key) {
             return res.status(400).json({
-                error: 'message, session_id aur api_key zaroori hain'
+                error: 'Message, session_id, and api_key are required'
             });
         }
 
@@ -239,7 +239,7 @@ const chat = async (req, res) => {
 
     } catch (error) {
         console.error('Chat error:', error.message);
-        res.status(500).json({ error: 'Server error aya, dobara try karein.' });
+        res.status(500).json({ error: 'Server error occurred, please try again.' });
     }
 };
 

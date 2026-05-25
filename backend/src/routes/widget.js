@@ -113,7 +113,7 @@ router.get('/', async (req, res) => {
     const isOpen = chatWindow.style.display === 'flex';
     chatWindow.style.display = isOpen ? 'none' : 'flex';
     if (!isOpen && messages.children.length === 0) {
-      addMessage('bot', 'Assalam o Alaikum! Main aapki kaise madad kar sakta hun?');
+      addMessage('bot', 'Assalam o Alaikum! How can I help you?');
     }
   });
 

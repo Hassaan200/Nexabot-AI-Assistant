@@ -17,7 +17,7 @@ export default function ForgotPassword() {
       await api.post('/auth/forgot-password', { email });
       setSent(true);
     } catch (err) {
-      setError(err.response?.data?.error || 'Kuch masla hua');
+      setError(err.response?.data?.error || 'Something went wrong');
     } finally {
       setLoading(false);
     }
@@ -38,7 +38,7 @@ export default function ForgotPassword() {
           <div className="text-4xl mb-2">🔐</div>
           <h1 className="text-2xl font-bold text-gray-800">Forgot Password?</h1>
           <p className="text-gray-400 text-sm mt-2">
-            Apni email daalo — reset link bhej denge
+           Enter your email — we will send you a reset link
           </p>
         </div>
 
@@ -46,10 +46,10 @@ export default function ForgotPassword() {
           <div className="text-center">
             <div className="text-5xl mb-4">📧</div>
             <p className="text-green-600 font-medium mb-2">
-              Reset link bhej diya gaya!
+              Reset link sent successfully!
             </p>
             <p className="text-gray-400 text-sm mb-6">
-              Apni email check karein aur reset link pe click karein.
+              Please check your email and click on the reset link.
             </p>
             <button
               onClick={() => navigate('/login')}

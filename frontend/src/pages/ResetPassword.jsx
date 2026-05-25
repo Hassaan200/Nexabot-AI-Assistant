@@ -60,13 +60,13 @@ export default function ResetPassword() {
         <div className="text-center mb-8">
           <div className="text-4xl mb-2">🔑</div>
           <h1 className="text-2xl font-bold text-gray-800">Reset Password</h1>
-          <p className="text-gray-400 text-sm mt-2">Naya password set karein</p>
+          <p className="text-gray-400 text-sm mt-2">Set your new password</p>
         </div>
 
         {done ? (
           <div className="text-center">
             <div className="text-5xl mb-4">✅</div>
-            <p className="text-green-600 font-medium mb-2">Password reset ho gaya!</p>
+            <p className="text-green-600 font-medium mb-2">Password reset successfully!</p>
             <button
               onClick={() => navigate('/login')}
               className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 mt-4"
@@ -89,7 +89,7 @@ export default function ResetPassword() {
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg"
               >
-                {showPassword ? '🙈' : '👁️'}
+                {showPassword ? 'Hide' : 'Show'}
               </button>
             </div>
 

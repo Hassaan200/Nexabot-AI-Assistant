@@ -15,11 +15,11 @@ export default function Settings() {
     const [statsData, setStatsData] = useState(null);
 
     useEffect(() => {
-  // Fresh stats lo
-  api.get('/dashboard/stats')
-    .then(({ data }) => setStatsData(data.stats))
-    .catch(console.error);
-}, []);
+        // Fresh stats lo
+        api.get('/dashboard/stats')
+            .then(({ data }) => setStatsData(data.stats))
+            .catch(console.error);
+    }, []);
 
     // Client data load karo
     useEffect(() => {
@@ -60,7 +60,7 @@ export default function Settings() {
                 {/* Widget Name */}
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Bot ka naam
+                        Bot Name
                     </label>
                     <input
                         type="text"
@@ -73,7 +73,7 @@ export default function Settings() {
                 {/* Widget Color */}
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Bot ka color
+                        Bot Color
                     </label>
                     <div className="flex items-center gap-4">
                         <input
@@ -89,10 +89,10 @@ export default function Settings() {
                 {/* System Prompt */}
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Bot ki instructions
+                        Bot Instructions
                     </label>
                     <p className="text-xs text-gray-400 mb-2">
-                        Apne business ki poori info likhein — timings, services, prices, address
+                        Enter your complete business details — timings, services, prices, and address
                     </p>
                     <textarea
                         rows={8}

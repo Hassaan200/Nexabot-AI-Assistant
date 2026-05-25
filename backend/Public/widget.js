@@ -92,7 +92,7 @@
     const isOpen = chatWindow.style.display === 'flex';
     chatWindow.style.display = isOpen ? 'none' : 'flex';
     if (!isOpen && messages.children.length === 0) {
-      addMessage('bot', 'Assalam o Alaikum! Main aapki kaise madad kar sakta hun?');
+      addMessage('bot', 'Assalam o Alaikum! How can I help you?');
     }
   });
 
@@ -139,10 +139,10 @@
 
       const data = await res.json();
       hideTyping();
-      addMessage('bot', data.reply || 'Kuch masla hua, dobara try karein.');
+      addMessage('bot', data.reply || 'Something went wrong, please try again.');
     } catch (err) {
       hideTyping();
-      addMessage('bot', 'Connection error, dobara try karein.');
+      addMessage('bot', 'Connection error, please try again.');
     }
   };
 

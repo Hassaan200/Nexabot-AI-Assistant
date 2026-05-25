@@ -18,7 +18,9 @@ export default function Sidebar() {
       {/* Mobile top navbar */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-xl">🤖</span>
+          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+            <span className="text-white text-sm font-bold">V</span>
+          </div>
           <span className="font-bold text-gray-800">Veloxa</span>
         </div>
         <button
@@ -48,7 +50,9 @@ export default function Sidebar() {
         {/* Logo — desktop only */}
         <div className="hidden lg:block p-6 border-b border-gray-100">
           <div className="flex items-center gap-3">
-            <div className="text-2xl">🤖</div>
+            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+              <span className="text-white text-sm font-bold">V</span>
+            </div>
             <div>
               <p className="font-bold text-gray-800">Veloxa</p>
               <p className="text-xs text-gray-400 truncate max-w-[140px]">
@@ -73,10 +77,9 @@ export default function Sidebar() {
               end={link.to === '/dashboard'}
               onClick={() => setOpen(false)}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                  isActive
-                    ? 'bg-blue-50 text-blue-600'
-                    : 'text-gray-500 hover:bg-gray-50'
+                `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${isActive
+                  ? 'bg-blue-50 text-blue-600'
+                  : 'text-gray-500 hover:bg-gray-50'
                 }`
               }
             >
@@ -87,7 +90,7 @@ export default function Sidebar() {
         </nav>
 
         {/* Plan + Logout */}
-        <div className="p-4 border-t border-gray-100">
+        <div className="p-4 border-t border-gray-100 mb-15">
           <div className="bg-blue-50 rounded-xl p-3 mb-3">
             <p className="text-xs text-blue-600 font-medium">
               Plan: {client?.plan?.toUpperCase()}

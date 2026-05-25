@@ -58,6 +58,12 @@ export default function Login() {
           <h1 className="text-2xl font-bold text-gray-800">Veloxa</h1>
           <p className="text-gray-500 text-sm mt-1">AI Assistant Platform</p>
         </div>
+        <button
+  onClick={() => navigate('/')}
+  className="flex items-center gap-1 text-sm text-gray-400 hover:text-blue-600 mb-6 transition-colors cursor-pointer"
+>
+  ← Back to Home
+</button>
 
         <div className="flex bg-gray-100 rounded-lg p-1 mb-6">
           <button

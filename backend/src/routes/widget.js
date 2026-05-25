@@ -44,7 +44,7 @@ router.get('/', async (req, res) => {
     #Veloxa-bubble:hover { transform: scale(1.1); }
     #Veloxa-window {
       position: fixed; bottom: 90px; right: 24px;
-      width: 340px; height: 480px; border-radius: 16px;
+      width: min(320px, calc(100vw - 32px)); height: 480px; border-radius: 16px;
       background: #fff; box-shadow: 0 8px 32px rgba(0,0,0,0.18);
       display: none; flex-direction: column; z-index: 99998;
       font-family: sans-serif; overflow: hidden;

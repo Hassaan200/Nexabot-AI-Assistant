@@ -56,8 +56,6 @@ export const getStats = async (req, res) => {
         plan: clientInfo.plan,
         plan_expires_at: clientInfo.plan_expires_at,
         days_left: daysLeft,
-        in_grace_period: inGracePeriod,
-        grace_days_left: graceDaysLeft,
       }
     });
 

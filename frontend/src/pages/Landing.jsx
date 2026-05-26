@@ -108,7 +108,14 @@ export default function Landing() {
             period: '7 days',
             color: 'border-gray-200',
             btn: 'bg-gray-100 text-gray-700 hover:bg-gray-200',
-            features: ['1 website', 'Basic AI responses', 'Appointment booking', '100 messages/month'],
+            whatsapp: null,
+            features: [
+                '1 website',
+                'Basic AI responses',
+                'Appointment booking',
+                '100 messages included',
+                '7 day free trial',
+            ],
         },
         {
             name: 'Starter',
@@ -117,7 +124,14 @@ export default function Landing() {
             color: 'border-blue-500 shadow-2xl shadow-blue-100',
             badge: 'Most Popular',
             btn: 'bg-blue-600 text-white hover:bg-blue-700',
-            features: ['1 website', 'Advanced AI model', '2,000 messages/month', 'Lead capture', 'Priority support'],
+            whatsapp: 'Starter',
+            features: [
+                '1 website',
+                'Advanced AI model',
+                '10,000 messages/month',
+                'Lead capture',
+                'Priority support',
+            ],
         },
         {
             name: 'Business',
@@ -125,7 +139,14 @@ export default function Landing() {
             period: 'per month',
             color: 'border-purple-400',
             btn: 'bg-purple-600 text-white hover:bg-purple-700',
-            features: ['3 websites', 'Premium AI model', '10,000 messages/month', 'Custom branding', 'Dedicated support'],
+            whatsapp: 'Business',
+            features: [
+                '3 websites',
+                'Premium AI model',
+                'Unlimited messages',
+                'Custom branding',
+                'Dedicated support',
+            ],
         },
     ];
 
@@ -509,7 +530,7 @@ export default function Landing() {
                                     </ul>
                                     <button
                                         onClick={() => handlePlanClick(plan)}
-                                        className={`w-full py-3 rounded-xl font-medium text-sm transition-all ${plan.btn}`}
+                                        className={`w-full py-3 rounded-xl font-medium text-sm transition-all cursor-pointer ${plan.btn}`}
                                     >
                                         {plan.name !== 'Trial' ? '💬 Subscribe via WhatsApp' : 'Start Free Trial →'}
                                     </button>

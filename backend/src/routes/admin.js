@@ -18,9 +18,9 @@ router.post('/upgrade', adminAuth, async (req, res) => {
     const { email, plan } = req.body;
 
     const plans = {
-      trial:    { limit: 100,   model: 'gemini-2.5-flash', days: 7 },
-      starter:  { limit: 2000,  model: 'gemini-2.5-flash', days: 30 },
-      business: { limit: 10000, model: 'gemini-2.5-pro',   days: 30 },
+      trial: { limit: 100, days: 7 },
+      starter: { limit: 10000, days: 30 },
+      business: { limit: 999999, days: 30 },
     };
 
     if (!plans[plan]) {

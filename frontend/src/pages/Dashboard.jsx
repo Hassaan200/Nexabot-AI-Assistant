@@ -90,7 +90,15 @@ export default function Dashboard() {
           <StatCard icon="💬" label="Total Conversations" value={stats?.total_conversations || 0} />
           <StatCard icon="📅" label="Total Bookings" value={stats?.total_bookings || 0} />
           <StatCard icon="📆" label="Today's Bookings" value={stats?.today_bookings || 0} />
-          <StatCard icon="✉️" label="Messages Used" value={`${stats?.messages_used || 0}/${stats?.messages_limit || 100}`} />
+          <StatCard
+            icon="✉️"
+            label="Messages Used"
+            value={
+              stats?.is_unlimited
+                ? `${stats?.messages_used || 0} / ∞`
+                : `${stats?.messages_used || 0} / ${stats?.messages_limit || 100}`
+            }
+          />
         </div>
       )}
 

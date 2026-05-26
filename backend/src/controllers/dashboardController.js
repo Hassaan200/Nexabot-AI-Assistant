@@ -44,8 +44,6 @@ export const getStats = async (req, res) => {
 
     const isUnlimited = clientInfo.plan === 'business';
 
-    const isUnlimited = clientInfo.plan === 'business';
-
     res.json({
       stats: {
         total_conversations: totalConversations.count,

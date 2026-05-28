@@ -17,6 +17,8 @@ const verifySignature = (payload, signature) => {
 };
 
 export const handleWebhook = async (req, res) => {
+    console.log('Headers:', req.headers);
+  console.log('Signature:', req.headers['x-signature']);
   try {
     const signature = req.headers['x-signature'];
 

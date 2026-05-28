@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
+import { useAuth } from '../context/AuthContext';
 
 // Smooth fade-in hook
 const useInView = () => {
@@ -43,6 +44,7 @@ export default function Landing() {
     ]);
     const [input, setInput] = useState('');
     const [typing, setTyping] = useState(false);
+    const { client } = useAuth();
     const messagesEndRef = useRef(null);
 
     useEffect(() => {
@@ -89,16 +91,31 @@ export default function Landing() {
         }, 1000);
     };
 
+    const checkoutUrls = {
+        Starter: 'https://veloxa-ai.lemonsqueezy.com/checkout/buy/e42bdc9e-47bb-466f-af69-4c1ff2958073',
+        Business: 'https://veloxa-ai.lemonsqueezy.com/checkout/buy/c11d823a-a905-4962-8ca2-1f070c326cff',
+    }
+
     const handlePlanClick = (plan) => {
         if (plan.name === 'Trial') {
             navigate('/login');
             return;
         }
-        const phone = '923359554095';
-        const msg = encodeURIComponent(
-            `Hi! I want to subscribe to Veloxa ${plan.name} Plan (${plan.price}/month). Please activate it for me.`
-        );
-        window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+
+        const baseUrl = checkoutUrls[plan.name];
+        // Email already logged in hai toh pass karo
+        const email = client?.email || '';
+        const url = email
+            ? `${baseUrl}?checkout[email]=${email}`
+            : baseUrl;
+
+        window.open(url, '_blank');
+
+        // const phone = '923359554095';
+        // const msg = encodeURIComponent(
+        //     `Hi! I want to subscribe to Veloxa ${plan.name} Plan (${plan.price}/month). Please activate it for me.`
+        // );
+        // window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
     };
 
     const plans = [
@@ -532,7 +549,7 @@ export default function Landing() {
                                         onClick={() => handlePlanClick(plan)}
                                         className={`w-full py-3 rounded-xl font-medium text-sm transition-all cursor-pointer ${plan.btn}`}
                                     >
-                                        {plan.name !== 'Trial' ? '💬 Subscribe via WhatsApp' : 'Start Free Trial →'}
+                                        {plan.name === 'Trial' ? 'Start Free Trial →' : `Get ${plan.name} Plan →`}
                                     </button>
                                 </div>
                             </FadeIn>

@@ -9,6 +9,9 @@ import { fileURLToPath } from 'url';
 import authRoutes from './src/routes/auth.js'
 import dashboardRoutes from './src/routes/dashboard.js';
 import adminRoutes from './src/routes/admin.js';
+import webhookRoutes from './src/routes/webhook.js';
+import { handleWebhook } from './src/controllers/webhookController.js';
+ 
 
 
 dotenv.config();
@@ -22,11 +25,22 @@ app.use(cors({
   ],
   credentials: true,
 }));
+
+// IMPORTANT: webhook route express.json() se PEHLE Hai ISS LYE YEHA DAL RHA HUN
+app.post('/api/webhook/lemonsqueezy',
+  express.raw({ type: 'application/json' }),
+  (req, res, next) => {
+    req.body = JSON.parse(req.body);
+    next();
+  },
+  handleWebhook
+);
+
 app.use(express.json());
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-app.get('/', (req,res)=>{
-    res.json({message:'Veloxa is ruuning!'})
+app.get('/', (req, res) => {
+  res.json({ message: 'Veloxa server is ruuning!' })
 });
 
 // chat route active yeha horha hai
@@ -42,6 +56,5 @@ app.use(express.static(path.join(__dirname, 'public')));
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Veloxa server is running on ${PORT}`)
+  console.log(`Veloxa server is running on ${PORT}`)
 });
- 

@@ -27,11 +27,19 @@ app.use(cors({
 }));
 
 // IMPORTANT: webhook route express.json() se PEHLE Hai ISS LYE YEHA DAL RHA HUN
-app.post('/api/webhook/lemonsqueezy',
-  express.raw({ type: 'application/json' }),
+app.post(
+  '/api/webhook/lemonsqueezy',
+  express.raw({ type: '*/*' }),
   (req, res, next) => {
-    req.body = JSON.parse(req.body);
-    next();
+    try {
+      const rawBody = req.body.toString('utf8');
+      req.rawBody = rawBody;
+      req.body = JSON.parse(rawBody);
+      next();
+    } catch (err) {
+      console.error('Body parse error:', err);
+      res.status(400).json({ error: 'Invalid body' });
+    }
   },
   handleWebhook
 );

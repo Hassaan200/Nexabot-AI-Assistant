@@ -80,6 +80,7 @@ export const register = async (req, res) => {
         api_key,
         widget_name: `${business_name} Assistant`,
         plan: 'trial',
+        system_prompt: '',
       }
     });
 
@@ -142,6 +143,7 @@ export const login = async (req, res) => {
         widget_color: client.widget_color,
         plan: client.plan,
         trial_ends_at: client.trial_ends_at,
+        system_prompt: client.system_prompt,
       }
     });
 
@@ -194,7 +196,7 @@ export const updateSettings = async (req, res) => {
     // Updated client data wapas bhejo
     const [clients] = await pool.query(
       `SELECT id, business_name, email, api_key, widget_name, 
-              widget_color, plan, trial_ends_at, system_prompt
+              widget_color, plan, trial_ends_at, system_prompt, messages_used, messages_limit
        FROM clients WHERE id = ?`,
       [req.clientId]
     );

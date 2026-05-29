@@ -29,7 +29,13 @@ router.get('/', async (req, res) => {
   const SERVER_URL = '${serverUrl}';
   const WIDGET_NAME = '${widgetName}';
   const WIDGET_COLOR = '${widgetColor}';
-  const SESSION_ID = 'session_' + Math.random().toString(36).substr(2, 9);
+  // localStorage se lo ya naya banao
+  const storageKey = 'veloxa_session_' + API_KEY;
+  let SESSION_ID = localStorage.getItem(storageKey);
+  if (!SESSION_ID) {
+  SESSION_ID = 'session_' + Math.random().toString(36).substr(2, 9);
+  localStorage.setItem(storageKey, SESSION_ID);
+}
 
   const style = document.createElement('style');
   style.innerHTML = \`
@@ -109,13 +115,28 @@ router.get('/', async (req, res) => {
   const input = document.getElementById('Veloxa-input');
   const sendBtn = document.getElementById('Veloxa-send');
 
-  bubble.addEventListener('click', () => {
-    const isOpen = chatWindow.style.display === 'flex';
-    chatWindow.style.display = isOpen ? 'none' : 'flex';
-    if (!isOpen && messages.children.length === 0) {
-      addMessage('bot', 'Assalam o Alaikum! How can I help you?');
+ bubble.addEventListener('click', async () => {
+  const isOpen = chatWindow.style.display === 'flex';
+  chatWindow.style.display = isOpen ? 'none' : 'flex';
+  
+  if (!isOpen && messages.children.length === 0) {
+    // Pehle history load karo
+    try {
+      const res = await fetch(SERVER_URL + '/api/chat/history?session_id=' + SESSION_ID + '&api_key=' + API_KEY);
+      const data = await res.json();
+      
+      if (data.messages && data.messages.length > 0) {
+        data.messages.forEach(msg => {
+          addMessage(msg.role === 'user' ? 'user' : 'bot', msg.content);
+        });
+      } else {
+        addMessage('bot', 'Hi! How can I help you today? 👋');
+      }
+    } catch {
+      addMessage('bot', 'Hi! How can I help you today? 👋');
     }
-  });
+  }
+});
 
   const addMessage = (role, text) => {
     const div = document.createElement('div');

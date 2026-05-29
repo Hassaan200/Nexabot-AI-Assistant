@@ -1,8 +1,9 @@
 import express from 'express';
 
 const router = express.Router();
-import chat from '../controllers/chatController.js';
+import { chat, getHistory } from '../controllers/chatController.js';
 
 router.post('/', chat);
+router.get('/history', getHistory);
 
 export default router

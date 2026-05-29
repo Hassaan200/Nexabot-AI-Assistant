@@ -9,7 +9,7 @@ import {
     getLastBooking,
 } from '../services/bookingService.js';
 
-const chat = async (req, res) => {
+ const chat = async (req, res) => {
     try {
         const { message, session_id, api_key } = req.body;
 
@@ -243,4 +243,45 @@ const chat = async (req, res) => {
     }
 };
 
-export default chat;
+ const getHistory = async (req, res) => {
+  try {
+    const { session_id, api_key } = req.query;
+
+    if (!session_id || !api_key) {
+      return res.status(400).json({ error: 'session_id and api_key are required!' });
+    }
+
+    const [clients] = await pool.query(
+      'SELECT * FROM clients WHERE api_key = ?',
+      [api_key]
+    );
+
+    if (clients.length === 0) {
+      return res.status(401).json({ error: 'Invalid API key' });
+    }
+
+    const [conversations] = await pool.query(
+      'SELECT * FROM conversations WHERE session_id = ? AND client_id = ?',
+      [session_id, clients[0].id]
+    );
+
+    if (conversations.length === 0) {
+      return res.json({ messages: [] });
+    }
+
+    const [messages] = await pool.query(
+      `SELECT role, content FROM messages 
+       WHERE conversation_id = ? 
+       ORDER BY created_at ASC`,
+      [conversations[0].id]
+    );
+
+    res.json({ messages });
+
+  } catch (error) {
+    console.error('History error:', error.message);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+export { chat, getHistory };

@@ -28,7 +28,7 @@ const ProtectedLayout = ({ children }) => {
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar />
       {/* Mobile pe top padding — navbar ki height */}
-      <main className="flex-1 overflow-auto pt-16 lg:pt-0">
+      <main className="flex-1 overflow-auto pt-16 lg:pt-0 lg:ml-64">
         {children}
       </main>
     </div>

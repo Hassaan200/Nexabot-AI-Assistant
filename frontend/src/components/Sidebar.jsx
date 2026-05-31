@@ -41,8 +41,8 @@ export default function Sidebar() {
 
       {/* Sidebar */}
       <div className={`
-        fixed lg:static inset-y-0 left-0 z-50
-        w-64 bg-white border-r border-gray-100 min-h-screen
+        fixed inset-y-0 left-0 z-50
+        w-64 bg-white border-r border-gray-100 h-screen overflow-hidden
         flex flex-col transition-transform duration-300
         ${open ? 'translate-x-0' : '-translate-x-full'}
         lg:translate-x-0
@@ -69,7 +69,7 @@ export default function Sidebar() {
         </div>
 
         {/* Nav links */}
-        <nav className="flex-1 p-4 space-y-1 mt-0 lg:mt-0">
+        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
           {links.map(link => (
             <NavLink
               key={link.to}
@@ -90,7 +90,7 @@ export default function Sidebar() {
         </nav>
 
         {/* Plan + Logout */}
-        <div className="p-4 border-t border-gray-100 mb-15">
+        <div className="p-4 border-t border-gray-100 sticky bottom-0 bg-white">
           <div className="bg-blue-50 rounded-xl p-3 mb-3">
             <p className="text-xs text-blue-600 font-medium">
               Plan: {client?.plan?.toUpperCase()}

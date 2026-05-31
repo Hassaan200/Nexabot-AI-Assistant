@@ -158,7 +158,8 @@ export const getProfile = async (req, res) => {
   try {
     const [clients] = await pool.query(
       `SELECT id, business_name, email, api_key, widget_name, 
-              widget_color, plan, trial_ends_at, business_type, created_at 
+              widget_color, plan, trial_ends_at, business_type, 
+              created_at, system_prompt, messages_used, messages_limit
        FROM clients WHERE id = ?`,
       [req.clientId]
     );

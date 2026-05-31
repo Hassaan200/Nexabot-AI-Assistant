@@ -28,7 +28,17 @@ export default function Bookings() {
     }
   };
 
-  useEffect(() => { fetchBookings(); }, [filter]);
+  // useEffect update karo — interval add karo
+useEffect(() => { 
+  fetchBookings(); 
+
+  // Har 20 seconds mein auto refresh
+  const interval = setInterval(() => {
+    fetchBookings();
+  }, 20000);
+
+  return () => clearInterval(interval);
+}, [filter]);
 
   const updateStatus = async (id, status) => {
     try {
@@ -43,20 +53,27 @@ export default function Bookings() {
     <div className="p-4 lg:p-8">
 
       {/* Header */}
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-xl lg:text-2xl font-bold text-gray-800">📅 Bookings</h1>
-        <select
-          value={filter}
-          onChange={e => setFilter(e.target.value)}
-          className="border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none bg-white"
-        >
-          <option value="">All</option>
-          <option value="pending">Pending</option>
-          <option value="confirmed">Confirmed</option>
-          <option value="cancelled">Cancelled</option>
-          <option value="rescheduled">Rescheduled</option>
-        </select>
-      </div>
+     <div className="mb-6 flex items-center justify-between">
+  <div className="flex items-center gap-3">
+    <h1 className="text-xl lg:text-2xl font-bold text-gray-800">📅 Bookings</h1>
+    {/* Live indicator */}
+    <div className="flex items-center gap-1.5 bg-green-50 px-2.5 py-1 rounded-full">
+      <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"/>
+      <span className="text-xs text-green-600 font-medium">Live</span>
+    </div>
+  </div>
+  <select
+    value={filter}
+    onChange={e => setFilter(e.target.value)}
+    className="border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none bg-white"
+  >
+    <option value="">All</option>
+    <option value="pending">Pending</option>
+    <option value="confirmed">Confirmed</option>
+    <option value="cancelled">Cancelled</option>
+    <option value="rescheduled">Rescheduled</option>
+  </select>
+</div>
 
       {loading ? (
         <div className="space-y-3">

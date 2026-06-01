@@ -16,15 +16,15 @@ const getModelForPlan = (plan) => {
 };
 
 export const getAIReply = async ({
-    userMessage,
-    systemPrompt,
-    chatHistory = [],
-    sessionMode = 'normal',
-    collectedData = {},
-    lastBooking = null,
-    businessName = '', // ← ADDITION 2: businessName parameter
-    clientPlan = 'trial', // ← plan pass hoga
-    retries = 3,       // ← ADDITION 3: retry counter
+  userMessage,
+  systemPrompt,
+  chatHistory = [],
+  sessionMode = 'normal',
+  collectedData = {},
+  lastBooking = null,
+  businessName = '', // ← ADDITION 2: businessName parameter
+  clientPlan = 'trial', // ← plan pass hoga
+  retries = 3,       // ← ADDITION 3: retry counter
 }) => {
   // ← ADDITION 4: try/catch wrap kiya — andar sab same hai
   try {
@@ -32,13 +32,24 @@ export const getAIReply = async ({
     console.log(`Client plan: ${clientPlan} | Model: ${selectedModel}`);
 
     const model = genAI.getGenerativeModel({
-        model: selectedModel,
-        systemInstruction: buildSystemPrompt(systemPrompt, sessionMode, collectedData, lastBooking, businessName),
+      model: selectedModel,
+      systemInstruction: buildSystemPrompt(systemPrompt, sessionMode, collectedData, lastBooking, businessName),
     });
 
-    const formattedHistory = chatHistory.map(msg => ({
-        role: msg.role === 'assistant' ? 'model' : 'user',
-        parts: [{ text: msg.content }],
+    // const formattedHistory = chatHistory.map(msg => ({
+    //     role: msg.role === 'assistant' ? 'model' : 'user',
+    //     parts: [{ text: msg.content }],
+    // }));
+
+    // History filter karo — pehla message user ka hona chahiye
+    let filteredHistory = chatHistory;
+    if (filteredHistory.length > 0 && filteredHistory[0].role === 'assistant') {
+      filteredHistory = filteredHistory.slice(1);
+    }
+
+    const formattedHistory = filteredHistory.map(msg => ({
+      role: msg.role === 'assistant' ? 'model' : 'user',
+      parts: [{ text: msg.content }],
     }));
 
     const chatSession = model.startChat({ history: formattedHistory });
@@ -63,15 +74,15 @@ export const getAIReply = async ({
 
 // ← businessName parameter add kiya — baaki sab SAME hai
 const buildSystemPrompt = (basePrompt, mode, collectedData, lastBooking, businessName) => {
-    const today = new Date().toLocaleDateString('en-PK', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    });
+  const today = new Date().toLocaleDateString('en-PK', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
 
-    // ← ADDITION 6: Identity rules sabse upar — basePrompt safe hai
-    let prompt = `CRITICAL IDENTITY RULES — NEVER BREAK THESE:
+  // ← ADDITION 6: Identity rules sabse upar — basePrompt safe hai
+  let prompt = `CRITICAL IDENTITY RULES — NEVER BREAK THESE:
 - You are the AI Assistant for ${businessName}
 - NEVER say "Main Google dwara train kiya gaya"
 - NEVER mention Gemini, Google, Bard, or any AI company
@@ -93,9 +104,9 @@ Examples:
 Always extract just the name, never store the full sentence.
 `;
 
-    // ← Tera original booking mode — BILKUL SAME
-    if (mode === 'booking') {
-        prompt += `
+  // ← Tera original booking mode — BILKUL SAME
+  if (mode === 'booking') {
+    prompt += `
 
 BOOKING MODE: You are currently collecting booking information step by step.
 Already collected: ${JSON.stringify(collectedData)}
@@ -130,11 +141,11 @@ Business type context:
 - Salon: collect name, service, date, time, phone
 - General: collect name, requirement, date/time, phone
 `;
-    }
+  }
 
-    // ← Tera original rescheduling mode — BILKUL SAME
-    if (mode === 'rescheduling' && lastBooking) {
-        prompt += `
+  // ← Tera original rescheduling mode — BILKUL SAME
+  if (mode === 'rescheduling' && lastBooking) {
+    prompt += `
 
 RESCHEDULING MODE: User wants to change their existing booking.
 Current booking: Name: ${lastBooking.customer_name}, Date: ${lastBooking.booking_date}, Time: ${lastBooking.booking_time}
@@ -153,9 +164,9 @@ RESCHEDULE_COMPLETE
 Then add your confirmation message AFTER the json block.
 Do NOT skip RESCHEDULE_COMPLETE word. Do NOT change the format.
 `;
-    }
+  }
 
-    return prompt;
+  return prompt;
 };
 
 export default getAIReply;

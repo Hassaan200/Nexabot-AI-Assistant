@@ -220,6 +220,7 @@ const chat = async (req, res) => {
 
         // BOOKING_CANCELLED
         if (aiResponse.includes('BOOKING_CANCELLED')) {
+            console.log('Cancelling booking for conversation:', conversation_id);
             // DB mein cancel karo
             const cancelled = await cancelBooking(conversation_id);
             await clearSession(session_id, client.id);

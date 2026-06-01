@@ -103,7 +103,7 @@ router.get('/', async (req, res) => {
       <div id="Veloxa-header">🤖 \${WIDGET_NAME}</div>
       <div id="Veloxa-messages"></div>
       <div id="Veloxa-input-area">
-        <input id="Veloxa-input" type="text" placeholder="Message likhein..." />
+        <input id="Veloxa-input" type="text" placeholder="Write a message..." />
         <button id="Veloxa-send">➤</button>
       </div>
     </div>

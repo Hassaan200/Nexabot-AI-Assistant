@@ -7,9 +7,10 @@ import {
     saveBooking,
     updateBooking,
     getLastBooking,
+    cancelBooking,
 } from '../services/bookingService.js';
 
- const chat = async (req, res) => {
+const chat = async (req, res) => {
     try {
         const { message, session_id, api_key } = req.body;
 
@@ -217,11 +218,19 @@ import {
             }
         }
 
-        // Booking cancelled check karo
+        // BOOKING_CANCELLED
         if (aiResponse.includes('BOOKING_CANCELLED')) {
-            clearSession(session_id);
-            newMode = 'normal';
-            finalReply = 'Theek hai, appointment booking cancel kar di. Koi aur madad chahiye?';
+            // DB mein cancel karo
+            const cancelled = await cancelBooking(conversation_id);
+            await clearSession(session_id, client.id);
+
+            if (cancelled) {
+                finalReply = aiResponse
+                    .replace('BOOKING_CANCELLED', '')
+                    .trim();
+            } else {
+                finalReply = 'No active booking found to cancel.';
+            }
         }
 
         // 9. Messages save karo
@@ -243,45 +252,45 @@ import {
     }
 };
 
- const getHistory = async (req, res) => {
-  try {
-    const { session_id, api_key } = req.query;
+const getHistory = async (req, res) => {
+    try {
+        const { session_id, api_key } = req.query;
 
-    if (!session_id || !api_key) {
-      return res.status(400).json({ error: 'session_id and api_key are required!' });
-    }
+        if (!session_id || !api_key) {
+            return res.status(400).json({ error: 'session_id and api_key are required!' });
+        }
 
-    const [clients] = await pool.query(
-      'SELECT * FROM clients WHERE api_key = ?',
-      [api_key]
-    );
+        const [clients] = await pool.query(
+            'SELECT * FROM clients WHERE api_key = ?',
+            [api_key]
+        );
 
-    if (clients.length === 0) {
-      return res.status(401).json({ error: 'Invalid API key' });
-    }
+        if (clients.length === 0) {
+            return res.status(401).json({ error: 'Invalid API key' });
+        }
 
-    const [conversations] = await pool.query(
-      'SELECT * FROM conversations WHERE session_id = ? AND client_id = ?',
-      [session_id, clients[0].id]
-    );
+        const [conversations] = await pool.query(
+            'SELECT * FROM conversations WHERE session_id = ? AND client_id = ?',
+            [session_id, clients[0].id]
+        );
 
-    if (conversations.length === 0) {
-      return res.json({ messages: [] });
-    }
+        if (conversations.length === 0) {
+            return res.json({ messages: [] });
+        }
 
-    const [messages] = await pool.query(
-      `SELECT role, content FROM messages 
+        const [messages] = await pool.query(
+            `SELECT role, content FROM messages 
        WHERE conversation_id = ? 
        ORDER BY created_at ASC`,
-      [conversations[0].id]
-    );
+            [conversations[0].id]
+        );
 
-    res.json({ messages });
+        res.json({ messages });
 
-  } catch (error) {
-    console.error('History error:', error.message);
-    res.status(500).json({ error: 'Server error' });
-  }
+    } catch (error) {
+        console.error('History error:', error.message);
+        res.status(500).json({ error: 'Server error' });
+    }
 };
 
 export { chat, getHistory };

@@ -118,7 +118,10 @@ BOOKING_COMPLETE
 \`\`\`
 Then add a confirmation message for the user.
 
-5. If user says cancel/band karo/nahi chahiye → respond with exactly: BOOKING_CANCELLED
+5. If user wants to cancel booking:
+   - First ask for confirmation: "Are you sure you want to cancel your booking? Please reply 'yes cancel' to confirm."
+   - Only when user confirms with 'yes cancel' or 'haan cancel' → respond: BOOKING_CANCELLED
+   - If user says no → continue normally
 6. Never make up or assume data — always ask if not provided
 
 Business type context:

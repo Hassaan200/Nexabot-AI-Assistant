@@ -106,3 +106,38 @@ export const getLastBooking = async (conversationId) => {
   );
   return rows[0] || null;
 };
+
+export const cancelBooking = async (conversationId) => {
+  try {
+    const [bookings] = await pool.query(
+      `SELECT * FROM bookings 
+       WHERE conversation_id = ? 
+       AND status IN ('confirmed', 'rescheduled')
+       ORDER BY created_at DESC LIMIT 1`,
+      [conversationId]
+    );
+
+    if (bookings.length === 0) return false;
+
+    await pool.query(
+      `UPDATE bookings SET status = 'cancelled', updated_at = NOW()
+       WHERE id = ?`,
+      [bookings[0].id]
+    );
+
+    await pool.query(
+      `INSERT INTO booking_audit (booking_id, action, old_data, new_data)
+       VALUES (?, 'cancelled', ?, ?)`,
+      [
+        bookings[0].id,
+        JSON.stringify({ status: bookings[0].status }),
+        JSON.stringify({ status: 'cancelled' })
+      ]
+    );
+
+    return true;
+  } catch (error) {
+    console.error('Cancel error:', error.message);
+    return false;
+  }
+};

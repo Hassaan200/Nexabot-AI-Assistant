@@ -1,11 +1,8 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-
-// ← ADDITION 1: sleep helper
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-// Plan ke hisaab se model select karo
 const getModelForPlan = (plan) => {
   const models = {
     trial: 'gemini-2.5-flash',
@@ -22,26 +19,23 @@ export const getAIReply = async ({
   sessionMode = 'normal',
   collectedData = {},
   lastBooking = null,
-  businessName = '', // ← ADDITION 2: businessName parameter
-  clientPlan = 'trial', // ← plan pass hoga
-  retries = 3,       // ← ADDITION 3: retry counter
+  businessName = '',
+  businessType = 'general',
+  clientPlan = 'trial',
+  retries = 3,
 }) => {
-  // ← ADDITION 4: try/catch wrap kiya — andar sab same hai
   try {
     const selectedModel = getModelForPlan(clientPlan);
-    console.log(`Client plan: ${clientPlan} | Model: ${selectedModel}`);
 
     const model = genAI.getGenerativeModel({
       model: selectedModel,
-      systemInstruction: buildSystemPrompt(systemPrompt, sessionMode, collectedData, lastBooking, businessName),
+      systemInstruction: buildSystemPrompt(
+        systemPrompt, sessionMode, collectedData, 
+        lastBooking, businessName, businessType
+      ),
     });
 
-    // const formattedHistory = chatHistory.map(msg => ({
-    //     role: msg.role === 'assistant' ? 'model' : 'user',
-    //     parts: [{ text: msg.content }],
-    // }));
-
-    // History filter karo — pehla message user ka hona chahiye
+    // History filter — pehla message user ka hona chahiye
     let filteredHistory = chatHistory;
     if (filteredHistory.length > 0 && filteredHistory[0].role === 'assistant') {
       filteredHistory = filteredHistory.slice(1);
@@ -57,112 +51,102 @@ export const getAIReply = async ({
     return result.response.text();
 
   } catch (error) {
-    // ← ADDITION 5: retry logic
-    if (error.status === 429 && retries > 0) {
-      console.log(`Rate limit — retrying... (${retries} left)`);
-      await sleep(4000);
+    if ((error.status === 429 || error.status === 503) && retries > 0) {
+      console.log(`Rate limit/overload — retrying... (${retries} left)`);
+      await sleep(5000);
       return getAIReply({
         userMessage, systemPrompt, chatHistory,
         sessionMode, collectedData, lastBooking,
-        businessName, clientPlan, retries: retries - 1,
+        businessName, businessType, clientPlan,
+        retries: retries - 1,
       });
     }
     console.error('AI Error:', error.message);
-    return "I'm sorry, I'm experiencing high demand right now. Please try again in a moment. 🙏";
+    return "I'm sorry, I'm experiencing high demand. Please try again in a moment. 🙏";
   }
 };
 
-// ← businessName parameter add kiya — baaki sab SAME hai
-const buildSystemPrompt = (basePrompt, mode, collectedData, lastBooking, businessName) => {
+const buildSystemPrompt = (basePrompt, mode, collectedData, lastBooking, businessName, businessType) => {
   const today = new Date().toLocaleDateString('en-PK', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
   });
 
-  // ← ADDITION 6: Identity rules sabse upar — basePrompt safe hai
-  let prompt = `CRITICAL IDENTITY RULES — NEVER BREAK THESE:
+  let prompt = `IDENTITY RULES — NEVER BREAK:
 - You are the AI Assistant for ${businessName}
-- NEVER say "Main Google dwara train kiya gaya"
-- NEVER mention Gemini, Google, Bard, or any AI company
-- If asked "who are you" → say "Main ${businessName} ka AI assistant hun"
-- If asked "which AI" → say "Main ek custom AI assistant hun"
+- NEVER mention Gemini, Google, or any AI company
+- If asked who you are: "I am ${businessName}'s AI assistant"
 
-${basePrompt}
+${basePrompt || ''}
 
 TODAY: ${today}
 
-LANGUAGE RULE: Detect the language of the user's message and always reply in the SAME language. If user writes in English, reply in English. If in Urdu/Roman Urdu, reply in that same style.
+LANGUAGE RULE: Always reply in the same language the user uses.
 
-CRITICAL NAME EXTRACTION RULE: When user provides their name, extract ONLY the actual name. 
-Examples:
-- "my name is Hassan" → name is "Hassan"
-- "mera naam Hassan hai" → name is "Hassan"  
-- "Hassan" → name is "Hassan"
-- "name: Hassan Khan" → name is "Hassan Khan"
-Always extract just the name, never store the full sentence.
+NAME EXTRACTION: Extract ONLY the actual name.
+- "my name is Hassan" → "Hassan"
+- "mera naam Hassan hai" → "Hassan"
 `;
 
-  // ← Tera original booking mode — BILKUL SAME
   if (mode === 'booking') {
+    const collected = Object.keys(collectedData)
+      .filter(k => collectedData[k])
+      .map(k => `${k}: ${collectedData[k]}`)
+      .join(', ');
+
     prompt += `
 
-BOOKING MODE: You are currently collecting booking information step by step.
-Already collected: ${JSON.stringify(collectedData)}
+BOOKING MODE — YOUR ROLE IS CONVERSATION ONLY:
+Already collected: ${collected || 'nothing yet'}
 
-BOOKING RULES:
-1. If user asks any question unrelated to booking — answer it briefly FIRST, then gently continue booking.
-2. Collect information in this order: name → date → time → phone (optional)
-3. Extract name carefully — only the actual name, not the full sentence
-4. When all required info collected (name, date, time), respond with EXACTLY this format:
+YOUR JOB:
+1. Ask for missing information naturally — ONE question at a time
+2. When user provides info, acknowledge it warmly
+3. When you have collected info, include it in your reply as JSON:
 
-BOOKING_COMPLETE
 \`\`\`json
 {
-  "name": "extracted name only",
-  "date": "date mentioned",
-  "time": "time mentioned", 
+  "name": "extracted name or null",
+  "date": "date mentioned or null",
+  "time": "time mentioned or null", 
   "phone": "phone if given or null",
-  "notes": "order details / address / any extra info"
+  "service": "service if mentioned or null",
+  "order": "order details if restaurant or null",
+  "address": "address if delivery or null",
+  "notes": "any extra info or null"
 }
 \`\`\`
-Then add a confirmation message for the user.
 
-5. If user wants to cancel booking:
-   - First ask for confirmation: "Are you sure you want to cancel your booking? Please reply 'yes cancel' to confirm."
-   - Only when user confirms with 'yes cancel' or 'haan cancel' → respond: BOOKING_CANCELLED
-   - If user says no → continue normally
-6. Never make up or assume data — always ask if not provided
+IMPORTANT: Include JSON block whenever user provides ANY new information.
+Our system will handle saving — you just collect and confirm.
 
-Business type context:
-- Clinic/Hospital: collect name, date, time, phone
-- Restaurant: collect name, order details, delivery address, phone
-- Salon: collect name, service, date, time, phone
-- General: collect name, requirement, date/time, phone
+4. For cancellation — ask for confirmation first:
+   "Are you sure you want to cancel? Reply 'yes cancel' to confirm."
+   
+5. If user says 'yes cancel' or 'haan cancel karo' → include in reply: BOOKING_CANCELLED
+
+6. Answer any questions briefly, then continue collecting info.
 `;
   }
 
-  // ← Tera original rescheduling mode — BILKUL SAME
   if (mode === 'rescheduling' && lastBooking) {
     prompt += `
 
-RESCHEDULING MODE: User wants to change their existing booking.
+RESCHEDULING MODE:
 Current booking: Name: ${lastBooking.customer_name}, Date: ${lastBooking.booking_date}, Time: ${lastBooking.booking_time}
 
-STRICT RULE: When user gives new date and time, you MUST respond with EXACTLY this format — no exceptions:
+Ask for new date and time. When user provides them, include in reply:
 
-RESCHEDULE_COMPLETE
 \`\`\`json
 {
   "name": "${lastBooking.customer_name}",
-  "date": "new date here",
-  "time": "new time here"
+  "date": "new date",
+  "time": "new time"
 }
 \`\`\`
 
-Then add your confirmation message AFTER the json block.
-Do NOT skip RESCHEDULE_COMPLETE word. Do NOT change the format.
+Also include: RESCHEDULE_COMPLETE
+
+Then add confirmation message.
 `;
   }
 

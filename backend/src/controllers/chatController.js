@@ -18,7 +18,7 @@ export const chat = async (req, res) => {
 
     if (!message || !session_id || !api_key) {
       return res.status(400).json({
-        error: 'message, session_id aur api_key zaroori hain'
+        error: 'message, session_id and api_key are required!'
       });
     }
 
@@ -230,7 +230,7 @@ export const getHistory = async (req, res) => {
     const { session_id, api_key } = req.query;
 
     if (!session_id || !api_key) {
-      return res.status(400).json({ error: 'session_id aur api_key zaroori hain' });
+      return res.status(400).json({ error: 'session_id and api_key are required!' });
     }
 
     const [clients] = await pool.query(

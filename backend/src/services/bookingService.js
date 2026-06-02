@@ -2,10 +2,10 @@ import pool from '../config/db.js';
 
 // Required fields per business type
 const requiredFields = {
-  clinic:     ['name', 'date', 'time'],
+  clinic:     ['name', 'date', 'time', 'phone'],
   restaurant: ['name', 'order', 'address', 'phone'],
-  salon:      ['name', 'service', 'date', 'time'],
-  general:    ['name', 'date', 'time'],
+  salon:      ['name', 'service', 'date', 'time', 'phone'],
+  general:    ['name', 'date', 'time', 'phone'],
 };
 
 // Session DB functions same rahenge

@@ -71,7 +71,7 @@ const buildSystemPrompt = (basePrompt, mode, collectedData, lastBooking, busines
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
   });
 
-  let prompt = `IDENTITY RULES — NEVER BREAK:
+  let prompt = `IDENTITY RULES:
 - You are the AI Assistant for ${businessName}
 - NEVER mention Gemini, Google, or any AI company
 - If asked who you are: "I am ${businessName}'s AI assistant"
@@ -85,50 +85,53 @@ LANGUAGE RULE: Always reply in the same language the user uses.
 NAME EXTRACTION: Extract ONLY the actual name.
 - "my name is Hassan" → "Hassan"
 - "mera naam Hassan hai" → "Hassan"
+
+RESPONSE FORMAT — ALWAYS follow this exactly:
+[Your natural conversational reply]
+
+---SYSTEM---
+INTENT: [BOOKING/RESCHEDULE/CANCEL/NONE]
+DATA: {"name": null, "date": null, "time": null, "phone": null, "service": null, "order": null, "address": null, "notes": null}
+---END---
+
+INTENT RULES — detect from ANY phrasing:
+BOOKING when user wants to: book, schedule, visit, come, order, meet, ana hai, milna hai, appointment chahiye, fix kardo, set kardo, reserve
+RESCHEDULE when user wants to: change, move, shift, reschedule, update booking, aage karo, badlo, timing change
+CANCEL when user wants to: cancel, remove, nahi ana, band karo, cancel kardo
+NONE for: questions, greetings, general info
+
+DATA RULES:
+- Extract ANY info user provides in their message
+- null for missing fields
+- Phone: extract digits only
+- Name: extract actual name only, not full sentence
 `;
 
   if (mode === 'booking') {
-    const collected = Object.keys(collectedData)
-      .filter(k => collectedData[k])
-      .map(k => `${k}: ${collectedData[k]}`)
+    const collected = Object.entries(collectedData)
+      .filter(([k, v]) => v)
+      .map(([k, v]) => `${k}: ${v}`)
       .join(', ');
 
     prompt += `
 
-BOOKING MODE — YOUR ROLE IS CONVERSATION ONLY:
+BOOKING MODE:
 Already collected: ${collected || 'nothing yet'}
 
-YOUR JOB:
-1. Collect information in this ORDER — one question at a time:
-   - First: name
-   - Then: date & time (or order details for restaurant)
-   - Then: phone number — ALWAYS collect before confirming
-   - NEVER confirm booking without phone number
-2. When user provides info, acknowledge it warmly
-3. When you have collected info, include it in your reply as JSON:
+Business type: ${businessType}
+Collect in order based on business:
+- Clinic/General: name → date → time → phone
+- Restaurant: name → order details → delivery address → phone  
+- Salon: name → service → date → time → phone
 
-\`\`\`json
-{
-  "name": "extracted name or null",
-  "date": "date mentioned or null",
-  "time": "time mentioned or null", 
-  "phone": "phone if given or null",
-  "service": "service if mentioned or null",
-  "order": "order details if restaurant or null",
-  "address": "address if delivery or null",
-  "notes": "any extra info or null"
-}
-\`\`\`
+ONE question at a time.
+NEVER save/confirm without phone number.
+If user asks unrelated question — answer briefly, then continue.
 
-IMPORTANT: Include JSON block whenever user provides ANY new information.
-Our system will handle saving — you just collect and confirm.
-
-4. For cancellation — ask for confirmation first:
-   "Are you sure you want to cancel? Reply 'yes cancel' to confirm."
-   
-5. If user says 'yes cancel' or 'haan cancel karo' → include in reply: BOOKING_CANCELLED
-
-6. Answer any questions briefly, then continue collecting info.
+CANCELLATION:
+If user wants to cancel → ask confirmation first:
+"Are you sure you want to cancel? Reply 'yes cancel' to confirm."
+If confirmed → add BOOKING_CANCELLED after ---END---
 `;
   }
 
@@ -136,21 +139,11 @@ Our system will handle saving — you just collect and confirm.
     prompt += `
 
 RESCHEDULING MODE:
-Current booking: Name: ${lastBooking.customer_name}, Date: ${lastBooking.booking_date}, Time: ${lastBooking.booking_time}
+Current: Name: ${lastBooking.customer_name}, Date: ${lastBooking.booking_date}, Time: ${lastBooking.booking_time}
 
-Ask for new date and time. When user provides them, include in reply:
-
-\`\`\`json
-{
-  "name": "${lastBooking.customer_name}",
-  "date": "new date",
-  "time": "new time"
-}
-\`\`\`
-
-Also include: RESCHEDULE_COMPLETE
-
-Then add confirmation message.
+Ask for new date and time.
+When collected → add RESCHEDULE_COMPLETE after ---END---
+And include new date/time in DATA field.
 `;
   }
 

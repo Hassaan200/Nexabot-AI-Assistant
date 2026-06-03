@@ -40,6 +40,7 @@ export const verifyWebhook = (req, res) => {
 };
 
 // Message receive karo
+// Message receive karo
 export const handleMessage = async (req, res) => {
   try {
     const body = req.body;
@@ -48,12 +49,7 @@ export const handleMessage = async (req, res) => {
       return res.status(404).send('Not Found');
     }
 
-    // Messages collect karo pehle
     const messagesToProcess = [];
-
-
-    // Turant 200 bhejo — Meta ka requirement
-    // res.status(200).send('EVENT_RECEIVED');
 
     for (const entry of body.entry) {
       for (const event of entry.messaging) {
@@ -65,13 +61,19 @@ export const handleMessage = async (req, res) => {
         });
       }
     }
-    // Turant 200 bhejo
+
+    // 1. Meta ko jaldi se response bhej kar free karo
     res.status(200).send('EVENT_RECEIVED');
 
-    // Phir process karo
-    for (const { senderId, message } of messagesToProcess) {
-      await processMessage(senderId, message);
-    }
+    // 2. IMPORTANT: Vercel par background tasks ko asynchronous chalao bina handleMessage ko rokay
+    // Promise.all use karo taake saare messages background me parallel process hon, aur 'await' hata do function ke aage se
+    Promise.all(
+      messagesToProcess.map(({ senderId, message }) => 
+        processMessage(senderId, message).catch(err => 
+          console.error('Background process error:', err.message)
+        )
+      )
+    );
 
   } catch (error) {
     console.error('Messenger error:', error.message);

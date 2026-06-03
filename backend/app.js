@@ -11,6 +11,7 @@ import dashboardRoutes from './src/routes/dashboard.js';
 import adminRoutes from './src/routes/admin.js';
 import webhookRoutes from './src/routes/webhook.js';
 import { handleWebhook } from './src/controllers/webhookController.js';
+import messengerRoutes from './src/routes/messenger.js';
  
 
 
@@ -57,6 +58,8 @@ app.use('/widget.js', widgetRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/messenger', messengerRoutes);
+
 
 
 app.use(express.static(path.join(__dirname, 'public')));

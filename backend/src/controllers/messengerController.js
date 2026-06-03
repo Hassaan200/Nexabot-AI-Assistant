@@ -48,25 +48,36 @@ export const handleMessage = async (req, res) => {
       return res.status(404).send('Not Found');
     }
 
+    // Messages collect karo pehle
+    const messagesToProcess = [];
+
+
     // Turant 200 bhejo — Meta ka requirement
-    res.status(200).send('EVENT_RECEIVED');
+    // res.status(200).send('EVENT_RECEIVED');
 
     for (const entry of body.entry) {
       for (const event of entry.messaging) {
         if (!event.message || event.message.is_echo) continue;
-
-        const senderId = event.sender.id;
-        const userMessage = event.message.text;
-
-        if (!userMessage) continue;
-
-        await processMessage(senderId, userMessage);
+        if (!event.message.text) continue;
+        messagesToProcess.push({
+          senderId: event.sender.id,
+          message: event.message.text,
+        });
       }
+    }
+    // Turant 200 bhejo
+    res.status(200).send('EVENT_RECEIVED');
+
+    // Phir process karo
+    for (const { senderId, message } of messagesToProcess) {
+      await processMessage(senderId, message);
     }
 
   } catch (error) {
     console.error('Messenger error:', error.message);
-    res.status(200).send('EVENT_RECEIVED');
+    if (!res.headersSent) {
+      res.status(200).send('EVENT_RECEIVED');
+    }
   }
 };
 

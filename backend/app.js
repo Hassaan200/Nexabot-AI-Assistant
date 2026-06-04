@@ -12,6 +12,7 @@ import adminRoutes from './src/routes/admin.js';
 import webhookRoutes from './src/routes/webhook.js';
 import { handleWebhook } from './src/controllers/webhookController.js';
 import messengerRoutes from './src/routes/messenger.js';
+import pingRouter from './src/routes/ping.js';
  
 
 
@@ -51,9 +52,9 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 app.get('/', (req, res) => {
   res.json({ message: 'Veloxa server is ruuning!' })
 });
-app.get('/ping', (req, res) => {
-  res.status(200).json({ status: 'alive', time: new Date() });
-});
+// app.get('/ping', (req, res) => {
+//   res.status(200).json({ status: 'alive', time: new Date() });
+// });
 
 // chat route active yeha horha hai
 app.use('/api/chat', router);
@@ -62,6 +63,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/messenger', messengerRoutes);
+app.use('/', pingRouter);
 
 
 

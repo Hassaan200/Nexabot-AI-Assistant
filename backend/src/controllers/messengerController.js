@@ -27,6 +27,10 @@ const sendMessage = async (recipientId, text) => {
 
 // Webhook verify — Meta ka requirement
 export const verifyWebhook = (req, res) => {
+  // UptimeRobot ko chup karwane ke liye bypass
+  if (req.method === 'HEAD' || !req.query['hub.mode']) {
+    return res.status(200).send('SERVER_IS_ALIVE');
+  }
   const mode = req.query['hub.mode'];
   const token = req.query['hub.verify_token'];
   const challenge = req.query['hub.challenge'];

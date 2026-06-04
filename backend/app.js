@@ -51,6 +51,9 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 app.get('/', (req, res) => {
   res.json({ message: 'Veloxa server is ruuning!' })
 });
+app.get('/ping', (req, res) => {
+  res.status(200).json({ status: 'alive', time: new Date() });
+});
 
 // chat route active yeha horha hai
 app.use('/api/chat', router);

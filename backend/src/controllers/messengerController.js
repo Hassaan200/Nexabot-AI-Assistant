@@ -27,19 +27,22 @@ const sendMessage = async (recipientId, text) => {
 
 // Webhook verify — Meta ka requirement
 export const verifyWebhook = (req, res) => {
-  // UptimeRobot ko chup karwane ke liye bypass
+  // 1. UptimeRobot ki HEAD request ya direct URL hit ko handle karo
   if (req.method === 'HEAD' || !req.query['hub.mode']) {
     return res.status(200).send('SERVER_IS_ALIVE');
   }
+
   const mode = req.query['hub.mode'];
   const token = req.query['hub.verify_token'];
   const challenge = req.query['hub.challenge'];
 
+  // 2. Meta Messenger Verification Logic (Hamenesha return lagao)
   if (mode === 'subscribe' && token === process.env.FACEBOOK_VERIFY_TOKEN) {
     console.log('Webhook verified!');
-    res.status(200).send(challenge);
+    return res.status(200).send(challenge);
   } else {
-    res.status(403).send('Forbidden');
+    console.log('Verification failed: Token mismatch');
+    return res.status(403).send('Forbidden');
   }
 };
 

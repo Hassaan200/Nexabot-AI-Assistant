@@ -70,11 +70,16 @@ export const handleMessage = async (req, res) => {
       }
     }
 
-    // 1. Meta ko jaldi se response bhej kar free karo
+    // 1. Meta ko sab se pehle response bhej kar free karo
     res.status(200).send('EVENT_RECEIVED');
 
-    // 2. IMPORTANT: Vercel par background tasks ko asynchronous chalao bina handleMessage ko rokay
-    // Promise.all use karo taake saare messages background me parallel process hon, aur 'await' hata do function ke aage se
+    // 2. 🔥 THE MAGIC TRICK: Apne server ko khud background me hit karo (Dashboard ki tarah)
+    // Isse Vercel ko jhatka lagega aur wo background process ko 100% active rakhega
+    fetch('https://nexabot-ai-assistant.vercel.app/api/dashboard/conversations', {
+      headers: { 'User-Agent': 'Vercel-Self-KeepAlive' }
+    }).catch(() => {}); // Error aaye toh ignore karein, maqsad sirf hit marna hai
+
+    // 3. Ab sukoon se background me process chalao
     Promise.all(
       messagesToProcess.map(({ senderId, message }) => 
         processMessage(senderId, message).catch(err => 

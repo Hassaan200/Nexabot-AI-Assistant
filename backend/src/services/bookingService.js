@@ -62,12 +62,6 @@ export const clearSession = async (sessionId, clientId) => {
 
 // Check karo kya sab required fields mil gaye
 export const isBookingComplete = (collectedData, businessType) => {
-  const requiredFields = {
-    clinic:     ['name', 'date', 'time', 'phone'],
-    restaurant: ['name', 'order', 'address', 'phone'],
-    salon:      ['name', 'service', 'date', 'time', 'phone'],
-    general:    ['name', 'date', 'time', 'phone'],
-  };
   const fields = requiredFields[businessType] || requiredFields.general;
   return fields.every(field => 
     collectedData[field] && 

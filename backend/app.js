@@ -18,12 +18,18 @@ import pingRouter from './src/routes/ping.js';
 
 dotenv.config();
 const app = express();
+// Widget ke liye — koi bhi website use kar sake
+app.use('/widget.js', cors({ origin: '*' }), widgetRoutes);
+
+// Chat endpoint — koi bhi website se chatbot kaam kare
+app.use('/api/chat', cors({ origin: '*' }), router);
+
+// Dashboard, auth — sirf tumhari frontend se
 app.use(cors({
   origin: [
     'http://localhost:5005',
     'http://192.168.43.37:5005',
     'https://nexabot-ai-assistant-seven.vercel.app',
-    '*'
   ],
   credentials: true,
 }));
@@ -57,8 +63,7 @@ app.get('/', (req, res) => {
 // });
 
 // chat route active yeha horha hai
-app.use('/api/chat', router);
-app.use('/widget.js', widgetRoutes);
+
 app.use('/api/auth', authRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/admin', adminRoutes);

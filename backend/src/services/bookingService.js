@@ -1,6 +1,5 @@
 import pool from '../config/db.js';
 
-// Required fields per business type
 const requiredFields = {
   clinic:     ['name', 'date', 'time', 'phone'],
   restaurant: ['name', 'order', 'address', 'phone'],
@@ -8,7 +7,6 @@ const requiredFields = {
   general:    ['name', 'date', 'time', 'phone'],
 };
 
-// Session DB functions same rahenge
 export const getSessionState = async (sessionId, clientId) => {
   try {
     const [rows] = await pool.query(
@@ -38,8 +36,7 @@ export const setSessionState = async (sessionId, clientId, state) => {
      collected_data = VALUES(collected_data),
      updated_at = NOW()`,
     [
-      sessionId,
-      clientId,
+      sessionId, clientId,
       state.mode || 'normal',
       state.bookingId || null,
       JSON.stringify(state.collectedData || {}),
@@ -52,55 +49,41 @@ export const clearSession = async (sessionId, clientId) => {
     `INSERT INTO sessions (session_id, client_id, mode, booking_id, collected_data)
      VALUES (?, ?, 'normal', NULL, '{}')
      ON DUPLICATE KEY UPDATE
-     mode = 'normal',
-     booking_id = NULL,
-     collected_data = '{}',
-     updated_at = NOW()`,
+     mode = 'normal', booking_id = NULL, collected_data = '{}', updated_at = NOW()`,
     [sessionId, clientId]
   );
 };
 
-// Check karo kya sab required fields mil gaye
 export const isBookingComplete = (collectedData, businessType) => {
   const fields = requiredFields[businessType] || requiredFields.general;
-  return fields.every(field => 
-    collectedData[field] && 
+  return fields.every(field =>
+    collectedData[field] &&
     collectedData[field].toString().trim().length > 0
   );
 };
 
-// AI response se data extract karo
-export const extractDataFromAIResponse = (aiResponse, currentData) => {
-  const updated = { ...currentData };
-  
-  // JSON block check karo
-  const jsonMatch = aiResponse.match(/```json\n([\s\S]*?)\n```/);
-  if (jsonMatch) {
-    try {
-      const parsed = JSON.parse(jsonMatch[1]);
-      Object.assign(updated, parsed);
-    } catch (e) {
-      // JSON parse fail — no problem
-    }
-  }
-  
-  return updated;
+export const getMissingFields = (collectedData, businessType) => {
+  const fields = requiredFields[businessType] || requiredFields.general;
+  return fields.filter(field =>
+    !collectedData[field] ||
+    collectedData[field].toString().trim().length === 0
+  );
 };
 
 export const saveBooking = async (clientId, conversationId, data) => {
   const [result] = await pool.query(
     `INSERT INTO bookings 
-     (client_id, conversation_id, customer_name, customer_phone, 
+     (client_id, conversation_id, customer_name, customer_phone,
       booking_date, booking_time, status, notes)
      VALUES (?, ?, ?, ?, ?, ?, 'confirmed', ?)`,
     [
-      clientId,
-      conversationId,
+      clientId, conversationId,
       data.name || null,
       data.phone || null,
       data.date || null,
       data.time || null,
-      data.notes || data.order || data.address || null,
+      [data.notes, data.order, data.service, data.address]
+        .filter(Boolean).join(' | ') || null,
     ]
   );
 
@@ -122,8 +105,7 @@ export const updateBooking = async (bookingId, newData) => {
   );
 
   if (existing.length === 0) return false;
-
-  const oldData = existing[0];
+  const old = existing[0];
 
   await pool.query(
     `UPDATE bookings 
@@ -131,10 +113,10 @@ export const updateBooking = async (bookingId, newData) => {
          notes = ?, status = 'rescheduled', updated_at = NOW()
      WHERE id = ?`,
     [
-      newData.name || oldData.customer_name,
-      newData.date || oldData.booking_date,
-      newData.time || oldData.booking_time,
-      newData.notes || oldData.notes,
+      newData.name || old.customer_name,
+      newData.date || old.booking_date,
+      newData.time || old.booking_time,
+      newData.notes || old.notes,
       bookingId,
     ]
   );
@@ -142,7 +124,7 @@ export const updateBooking = async (bookingId, newData) => {
   await pool.query(
     `INSERT INTO booking_audit (booking_id, action, old_data, new_data)
      VALUES (?, 'rescheduled', ?, ?)`,
-    [bookingId, JSON.stringify(oldData), JSON.stringify(newData)]
+    [bookingId, JSON.stringify(old), JSON.stringify(newData)]
   );
 
   return true;
@@ -172,7 +154,7 @@ export const cancelBooking = async (conversationId) => {
       [
         bookings[0].id,
         JSON.stringify({ status: bookings[0].status }),
-        JSON.stringify({ status: 'cancelled' })
+        JSON.stringify({ status: 'cancelled' }),
       ]
     );
 

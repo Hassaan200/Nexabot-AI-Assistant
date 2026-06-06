@@ -9,7 +9,7 @@ import {
   cancelBooking,
   getLastBooking,
   isBookingComplete,
-  extractDataFromAIResponse,
+  getMissingFields,
 } from '../services/bookingService.js';
 
 export const chat = async (req, res) => {
@@ -18,11 +18,10 @@ export const chat = async (req, res) => {
 
     if (!message || !session_id || !api_key) {
       return res.status(400).json({
-        error: 'message, session_id and api_key are required!'
+        error: 'message, session_id and api_key are required'
       });
     }
 
-    // 1. Client authenticate
     const [clients] = await pool.query(
       'SELECT * FROM clients WHERE api_key = ?',
       [api_key]
@@ -48,7 +47,6 @@ export const chat = async (req, res) => {
       });
     }
 
-    // Plan expiry check
     if (client.plan_expires_at) {
       const now = new Date();
       const expiry = new Date(client.plan_expires_at);
@@ -64,7 +62,7 @@ export const chat = async (req, res) => {
       }
     }
 
-    // 2. Conversation
+    // Conversation
     const [conversations] = await pool.query(
       'SELECT * FROM conversations WHERE session_id = ? AND client_id = ?',
       [session_id, client.id]
@@ -81,56 +79,27 @@ export const chat = async (req, res) => {
       conversation_id = conversations[0].id;
     }
 
-    // 3. History
+    // History
     const [history] = await pool.query(
       `SELECT role, content FROM messages 
-       WHERE conversation_id = ? ORDER BY created_at ASC`,
+       WHERE conversation_id = ? ORDER BY created_at ASC LIMIT 20`,
       [conversation_id]
     );
 
-    // 4. Session state
+    // Session state
     let sessionState = await getSessionState(session_id, client.id);
-    const msgLower = message.toLowerCase();
-
-    // 5. Reschedule intent
-    const rescheduleWords = ['change', 'reschedule', 'badlo', 'update booking',
-      'shift', 'move appointment', 'timing badal', 'date change'];
-    const wantsReschedule = rescheduleWords.some(w => msgLower.includes(w))
-      && sessionState.mode === 'normal';
-
-    if (wantsReschedule) {
-      const lastBooking = await getLastBooking(conversation_id);
-      if (lastBooking) {
-        sessionState = {
-          mode: 'rescheduling',
-          bookingId: lastBooking.id,
-          collectedData: {}
-        };
-        await setSessionState(session_id, client.id, sessionState);
-      }
-    }
-
-    // 6. Booking intent
-    if (sessionState.mode === 'normal') {
-      const bookingWords = [
-        'appointment', 'booking', 'book', 'appoint', 'schedule',
-        'milna', 'visit', 'order', 'delivery', 'deliver',
-        'food', 'manga', 'reserve', 'consultation', 'haircut'
-      ];
-      const wantsBooking = bookingWords.some(w => msgLower.includes(w));
-      if (wantsBooking) {
-        sessionState = { mode: 'booking', bookingId: null, collectedData: {} };
-        await setSessionState(session_id, client.id, sessionState);
-      }
-    }
-
-    // 7. Last booking for rescheduling
     let lastBooking = null;
+
     if (sessionState.mode === 'rescheduling') {
       lastBooking = await getLastBooking(conversation_id);
     }
 
-    // 8. AI call
+    // Missing fields calculate karo
+    const missingFields = sessionState.mode === 'booking'
+      ? getMissingFields(sessionState.collectedData || {}, client.business_type || 'general')
+      : [];
+
+    // AI call
     const aiResponse = await getAIReply({
       userMessage: message,
       systemPrompt: client.system_prompt,
@@ -141,39 +110,125 @@ export const chat = async (req, res) => {
       businessName: client.business_name,
       businessType: client.business_type || 'general',
       clientPlan: client.plan,
+      missingFields,
     });
 
-    let finalReply = aiResponse;
+    // Parse system block
+    const systemMatch = aiResponse.match(/---SYSTEM---\n([\s\S]*?)\n---END---/);
+    let finalReply = aiResponse.replace(/---SYSTEM---[\s\S]*?---END---/g, '').trim();
+    let detectedIntent = 'NONE';
+    let extractedData = {};
 
-    // 9. Booking mode — extract data aur check karo
+    if (systemMatch) {
+      const systemPart = systemMatch[1];
+
+      const intentMatch = systemPart.match(/INTENT:\s*(\w+)/);
+      if (intentMatch) detectedIntent = intentMatch[1].trim();
+
+      const dataMatch = systemPart.match(/DATA:\s*(\{[\s\S]*?\})/);
+      if (dataMatch) {
+        try {
+          const parsed = JSON.parse(dataMatch[1]);
+          Object.keys(parsed).forEach(k => {
+            if (parsed[k] !== null && parsed[k] !== undefined &&
+                parsed[k].toString().trim().length > 0) {
+              extractedData[k] = parsed[k];
+            }
+          });
+        } catch (e) {
+          console.error('JSON parse error:', e.message);
+        }
+      }
+    }
+
+    console.log('Mode:', sessionState.mode, '| Intent:', detectedIntent, '| Data:', extractedData);
+
+    // Normal mode — intent se session set karo
+    if (sessionState.mode === 'normal') {
+      if (detectedIntent === 'BOOKING') {
+        sessionState = {
+          mode: 'booking',
+          bookingId: null,
+          collectedData: extractedData,
+        };
+        await setSessionState(session_id, client.id, sessionState);
+
+      } else if (detectedIntent === 'RESCHEDULE') {
+        const lb = await getLastBooking(conversation_id);
+        if (lb) {
+          sessionState = {
+            mode: 'rescheduling',
+            bookingId: lb.id,
+            collectedData: {},
+          };
+          await setSessionState(session_id, client.id, sessionState);
+          lastBooking = lb;
+        }
+
+      } else if (detectedIntent === 'CANCEL') {
+        // Cancel intent normal mode mein
+        const lb = await getLastBooking(conversation_id);
+        if (lb) {
+          sessionState = {
+            mode: 'booking',
+            bookingId: lb.id,
+            collectedData: {},
+          };
+          await setSessionState(session_id, client.id, sessionState);
+        }
+      }
+    }
+
+    // Booking mode
     if (sessionState.mode === 'booking') {
 
-      // BOOKING_CANCELLED check
+      // Cancel confirmed
       if (aiResponse.includes('BOOKING_CANCELLED')) {
-        await cancelBooking(conversation_id);
+        const cancelled = await cancelBooking(conversation_id);
         await clearSession(session_id, client.id);
-        finalReply = aiResponse.replace('BOOKING_CANCELLED', '').trim();
+        finalReply = finalReply.replace('BOOKING_CANCELLED', '').trim();
+
+        if (!cancelled) {
+          finalReply = "No active booking found to cancel.";
+        }
+        console.log('Booking cancelled:', cancelled);
 
       } else {
-        // Data extract karo AI response se
-        const updatedData = extractDataFromAIResponse(
-          aiResponse,
-          sessionState.collectedData || {}
+        // Data merge
+        const updatedData = {
+          ...sessionState.collectedData,
+          ...extractedData,
+        };
+
+        console.log('Updated collected data:', updatedData);
+
+        const complete = isBookingComplete(
+          updatedData,
+          client.business_type || 'general'
         );
 
-        // Clean reply — JSON block hata do
-        finalReply = aiResponse.replace(/```json\n[\s\S]*?\n```/, '').trim();
+        const remaining = getMissingFields(
+          updatedData,
+          client.business_type || 'general'
+        );
 
-        // Check karo booking complete hui?
-        const complete = isBookingComplete(updatedData, client.business_type || 'general');
+        console.log('Complete:', complete, '| Missing:', remaining);
 
         if (complete) {
-          // GUARANTEED save — AI pe depend nahi
-          await saveBooking(client.id, conversation_id, updatedData);
+          // GUARANTEED save
+          const bookingId = await saveBooking(
+            client.id, conversation_id, updatedData
+          );
           await clearSession(session_id, client.id);
-          console.log('Booking saved:', updatedData);
+          console.log('BOOKING SAVED — ID:', bookingId, '| Data:', updatedData);
+
+          // Confirm signal add karo reply mein agar AI ne nahi kiya
+          if (!finalReply.includes('confirm') && !finalReply.includes('book')) {
+            finalReply += '\n\nYour booking has been confirmed! ✅';
+          }
+
         } else {
-          // State update karo collected data ke saath
+          // State update with merged data
           await setSessionState(session_id, client.id, {
             ...sessionState,
             collectedData: updatedData,
@@ -182,26 +237,24 @@ export const chat = async (req, res) => {
       }
     }
 
-    // 10. Reschedule complete
+    // Reschedule mode
     if (sessionState.mode === 'rescheduling' && aiResponse.includes('RESCHEDULE_COMPLETE')) {
-      try {
-        const jsonMatch = aiResponse.match(/```json\n([\s\S]*?)\n```/);
-        if (jsonMatch) {
-          const newData = JSON.parse(jsonMatch[1]);
-          await updateBooking(sessionState.bookingId, newData);
-          await clearSession(session_id, client.id);
-          finalReply = aiResponse
-            .replace('RESCHEDULE_COMPLETE', '')
-            .replace(/```json\n[\s\S]*?\n```/, '')
-            .trim();
-          console.log('Booking rescheduled:', newData);
-        }
-      } catch (e) {
-        console.error('Reschedule error:', e.message);
+      const newData = {
+        ...extractedData,
+        name: lastBooking?.customer_name,
+      };
+
+      const updated = await updateBooking(sessionState.bookingId, newData);
+      await clearSession(session_id, client.id);
+      finalReply = finalReply.replace('RESCHEDULE_COMPLETE', '').trim();
+      console.log('BOOKING RESCHEDULED:', updated, '| Data:', newData);
+
+      if (!finalReply.includes('reschedul') && !finalReply.includes('updat')) {
+        finalReply += '\n\nYour booking has been rescheduled! ✅';
       }
     }
 
-    // 11. Messages save
+    // Messages save
     await pool.query(
       'INSERT INTO messages (conversation_id, role, content) VALUES (?, ?, ?)',
       [conversation_id, 'user', message]
@@ -211,7 +264,7 @@ export const chat = async (req, res) => {
       [conversation_id, 'assistant', finalReply]
     );
 
-    // 12. Message count
+    // Message count
     await pool.query(
       'UPDATE clients SET messages_used = messages_used + 1 WHERE id = ?',
       [client.id]
@@ -230,7 +283,7 @@ export const getHistory = async (req, res) => {
     const { session_id, api_key } = req.query;
 
     if (!session_id || !api_key) {
-      return res.status(400).json({ error: 'session_id and api_key are required!' });
+      return res.status(400).json({ error: 'session_id and api_key required' });
     }
 
     const [clients] = await pool.query(
@@ -253,8 +306,7 @@ export const getHistory = async (req, res) => {
 
     const [messages] = await pool.query(
       `SELECT role, content FROM messages 
-       WHERE conversation_id = ? 
-       ORDER BY created_at ASC`,
+       WHERE conversation_id = ? ORDER BY created_at ASC`,
       [conversations[0].id]
     );
 

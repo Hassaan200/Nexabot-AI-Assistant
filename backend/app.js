@@ -3,38 +3,22 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import pool from './src/config/db.js';
 import router from './src/routes/chat.js';
-import widgetRoutes from './src/routes/widget.js'
+import widgetRoutes from './src/routes/widget.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import authRoutes from './src/routes/auth.js'
+import authRoutes from './src/routes/auth.js';
 import dashboardRoutes from './src/routes/dashboard.js';
 import adminRoutes from './src/routes/admin.js';
-import webhookRoutes from './src/routes/webhook.js';
 import { handleWebhook } from './src/controllers/webhookController.js';
 import messengerRoutes from './src/routes/messenger.js';
 import pingRouter from './src/routes/ping.js';
- 
-
 
 dotenv.config();
+
 const app = express();
-// Widget ke liye — koi bhi website use kar sake
-app.use('/widget.js', cors({ origin: '*' }), widgetRoutes);
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// Chat endpoint — koi bhi website se chatbot kaam kare
-app.use('/api/chat', cors({ origin: '*' }), router);
-
-// Dashboard, auth — sirf tumhari frontend se
-app.use(cors({
-  origin: [
-    'http://localhost:5005',
-    'http://192.168.43.37:5005',
-    'https://nexabot-ai-assistant-seven.vercel.app',
-  ],
-  credentials: true,
-}));
-
-// IMPORTANT: webhook route express.json() se PEHLE Hai ISS LYE YEHA DAL RHA HUN
+// 1. Webhook PEHLE — raw body chahiye
 app.post(
   '/api/webhook/lemonsqueezy',
   express.raw({ type: '*/*' }),
@@ -52,30 +36,35 @@ app.post(
   handleWebhook
 );
 
+// 2. express.json()
 app.use(express.json());
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+// 3. CORS
+app.use('/widget.js', cors({ origin: '*' }), widgetRoutes);
+app.use('/api/chat', cors({ origin: '*' }), router);
+
+app.use(cors({
+  origin: [
+    'http://localhost:5005',
+    'http://192.168.43.37:5005',
+    'https://nexabot-ai-assistant-seven.vercel.app',
+  ],
+  credentials: true,
+}));
+
+// 4. Routes
 app.get('/', (req, res) => {
-  res.json({ message: 'Veloxa server is ruuning!' })
+  res.json({ message: 'Veloxa server is running!' });
 });
-// app.get('/ping', (req, res) => {
-//   res.status(200).json({ status: 'alive', time: new Date() });
-// });
-
-// chat route active yeha horha hai
 
 app.use('/api/auth', authRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/messenger', messengerRoutes);
 app.use('/', pingRouter);
-
-
-
 app.use(express.static(path.join(__dirname, 'public')));
 
 const PORT = process.env.PORT || 3000;
-
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Veloxa server is running on ${PORT}`)
+  console.log(`Veloxa server is running on ${PORT}`);
 });

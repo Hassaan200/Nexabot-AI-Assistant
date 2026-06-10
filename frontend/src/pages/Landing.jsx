@@ -606,8 +606,8 @@ export default function Landing() {
                         <div className="flex gap-8 text-sm text-gray-400">
                             <a href="#features" className="hover:text-white transition-colors">Features</a>
                             <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
-                            <a href="#" className="hover:text-white transition-colors">Privacy</a>
-                            <a href="#" className="hover:text-white transition-colors">Terms</a>
+                            <a href="/privacy" className="hover:text-white transition-colors" target='blank'>Privacy Policy</a>
+                            <a href="/terms" className="hover:text-white transition-colors" target='blank'>Terms of Service</a>
                         </div>
                     </div>
                     <div className="border-t border-gray-800 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">

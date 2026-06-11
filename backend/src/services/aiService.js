@@ -160,6 +160,17 @@ NEVER say rescheduled unless you receive RESCHEDULE_SAVED signal.
 `;
   }
 
+  if (mode === 'cancelling') {
+    prompt += `
+
+CANCELLATION CONFIRMATION MODE:
+User has requested to cancel their booking.
+Ask them to confirm with yes/no.
+Once they confirm → simply say the booking is cancelled.
+Do NOT add BOOKING_CANCELLED signal — system handles it automatically.
+`;
+  }
+
   return prompt;
 };
 

@@ -181,79 +181,89 @@ export const chat = async (req, res) => {
 
     // Booking mode
     if (sessionState.mode === 'booking') {
-        // Data merge
-        const updatedData = {
-          ...sessionState.collectedData,
-          ...extractedData,
-        };
+      // Data merge
+      const updatedData = {
+        ...sessionState.collectedData,
+        ...extractedData,
+      };
 
-        console.log('Updated collected data:', updatedData);
+      console.log('Updated collected data:', updatedData);
 
-        const complete = isBookingComplete(
-          updatedData,
-          client.business_type || 'general'
+      const complete = isBookingComplete(
+        updatedData,
+        client.business_type || 'general'
+      );
+
+      const remaining = getMissingFields(
+        updatedData,
+        client.business_type || 'general'
+      );
+
+      console.log('Complete:', complete, '| Missing:', remaining);
+
+      if (complete) {
+        // GUARANTEED save
+        const bookingId = await saveBooking(
+          client.id, conversation_id, updatedData
         );
+        await clearSession(session_id, client.id);
+        console.log('BOOKING SAVED — ID:', bookingId, '| Data:', updatedData);
 
-        const remaining = getMissingFields(
-          updatedData,
-          client.business_type || 'general'
-        );
-
-        console.log('Complete:', complete, '| Missing:', remaining);
-
-        if (complete) {
-          // GUARANTEED save
-          const bookingId = await saveBooking(
-            client.id, conversation_id, updatedData
-          );
-          await clearSession(session_id, client.id);
-          console.log('BOOKING SAVED — ID:', bookingId, '| Data:', updatedData);
-
-          // Confirm signal add karo reply mein agar AI ne nahi kiya
-          if (!finalReply.includes('confirm') && !finalReply.includes('book')) {
-            finalReply += '\n\nYour booking has been confirmed! ✅';
-          }
-
-        } else {
-          // State update with merged data
-          await setSessionState(session_id, client.id, {
-            ...sessionState,
-            collectedData: updatedData,
-          });
+        // Confirm signal add karo reply mein agar AI ne nahi kiya
+        if (!finalReply.includes('confirm') && !finalReply.includes('book')) {
+          finalReply += '\n\nYour booking has been confirmed! ✅';
         }
-      
+
+      } else {
+        // State update with merged data
+        await setSessionState(session_id, client.id, {
+          ...sessionState,
+          collectedData: updatedData,
+        });
+      }
+
     }
 
     // Cancelling mode
     if (sessionState.mode === 'cancelling') {
-      if (aiResponse.includes('BOOKING_CANCELLED')) {
+      const confirmWords = ['yes', 'han', 'haan', 'ok', 'okay', 'cancel',
+        'krdo', 'kardo', 'please', 'confirm', 'sure'];
+      const userConfirmed = confirmWords.some(word =>
+        message.toLowerCase().includes(word)
+      );
+
+      if (userConfirmed) {
         const cancelled = await cancelBooking(conversation_id);
         await clearSession(session_id, client.id);
-        finalReply = finalReply.replace('BOOKING_CANCELLED', '').trim();
 
         if (!cancelled) {
           finalReply = "No active booking found to cancel.";
+        } else {
+          finalReply = finalReply.replace('BOOKING_CANCELLED', '').trim();
         }
         console.log('Booking cancelled:', cancelled);
       }
-      // Agar BOOKING_CANCELLED nahi aaya — bas wait karo confirmation ka
-      // Koi saveBooking call nahi hogi ✅
     }
 
     // Reschedule mode
-    if (sessionState.mode === 'rescheduling' && aiResponse.includes('RESCHEDULE_COMPLETE')) {
-      const newData = {
-        ...extractedData,
-        name: lastBooking?.customer_name,
-      };
+    if (sessionState.mode === 'rescheduling') {
+      const newDate = extractedData.date || lastBooking?.booking_date;
+      const newTime = extractedData.time || lastBooking?.booking_time;
 
-      const updated = await updateBooking(sessionState.bookingId, newData);
-      await clearSession(session_id, client.id);
-      finalReply = finalReply.replace('RESCHEDULE_COMPLETE', '').trim();
-      console.log('BOOKING RESCHEDULED:', updated, '| Data:', newData);
+      // Agar nayi date ya time mili hai extractedData mein
+      if (extractedData.date || extractedData.time) {
+        const newData = {
+          name: lastBooking?.customer_name,
+          date: newDate,
+          time: newTime,
+        };
+        const updated = await updateBooking(sessionState.bookingId, newData);
+        await clearSession(session_id, client.id);
+        console.log('BOOKING RESCHEDULED:', updated);
 
-      if (!finalReply.includes('reschedul') && !finalReply.includes('updat')) {
-        finalReply += '\n\nYour booking has been rescheduled! ✅';
+        if (!finalReply.includes('reschedul') && !finalReply.includes('updat')) {
+          finalReply += '\n\nYour booking has been rescheduled! ✅';
+        }
       }
     }
 

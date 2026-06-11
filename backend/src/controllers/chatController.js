@@ -131,7 +131,7 @@ export const chat = async (req, res) => {
           const parsed = JSON.parse(dataMatch[1]);
           Object.keys(parsed).forEach(k => {
             if (parsed[k] !== null && parsed[k] !== undefined &&
-                parsed[k].toString().trim().length > 0) {
+              parsed[k].toString().trim().length > 0) {
               extractedData[k] = parsed[k];
             }
           });
@@ -170,7 +170,7 @@ export const chat = async (req, res) => {
         const lb = await getLastBooking(conversation_id);
         if (lb) {
           sessionState = {
-            mode: 'booking',
+            mode: 'cancelling',
             bookingId: lb.id,
             collectedData: {},
           };
@@ -181,19 +181,6 @@ export const chat = async (req, res) => {
 
     // Booking mode
     if (sessionState.mode === 'booking') {
-
-      // Cancel confirmed
-      if (aiResponse.includes('BOOKING_CANCELLED')) {
-        const cancelled = await cancelBooking(conversation_id);
-        await clearSession(session_id, client.id);
-        finalReply = finalReply.replace('BOOKING_CANCELLED', '').trim();
-
-        if (!cancelled) {
-          finalReply = "No active booking found to cancel.";
-        }
-        console.log('Booking cancelled:', cancelled);
-
-      } else {
         // Data merge
         const updatedData = {
           ...sessionState.collectedData,
@@ -234,7 +221,23 @@ export const chat = async (req, res) => {
             collectedData: updatedData,
           });
         }
+      
+    }
+
+    // Cancelling mode
+    if (sessionState.mode === 'cancelling') {
+      if (aiResponse.includes('BOOKING_CANCELLED')) {
+        const cancelled = await cancelBooking(conversation_id);
+        await clearSession(session_id, client.id);
+        finalReply = finalReply.replace('BOOKING_CANCELLED', '').trim();
+
+        if (!cancelled) {
+          finalReply = "No active booking found to cancel.";
+        }
+        console.log('Booking cancelled:', cancelled);
       }
+      // Agar BOOKING_CANCELLED nahi aaya — bas wait karo confirmation ka
+      // Koi saveBooking call nahi hogi ✅
     }
 
     // Reschedule mode

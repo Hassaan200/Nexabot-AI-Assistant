@@ -198,7 +198,7 @@ export default function Dashboard() {
         </div>
         <button
           onClick={handleCopy}
-          className="w-full sm:w-auto text-sm bg-blue-600 text-white px-5 py-2.5 rounded-xl hover:bg-blue-700 transition-all"
+          className="w-full sm:w-auto text-sm bg-blue-600 text-white px-5 py-2.5 rounded-xl hover:bg-blue-700 transition-all cursor-pointer"
         >
           {copied ? '✅ Copied!' : '📋 Copy Code'}
         </button>

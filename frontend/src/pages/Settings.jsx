@@ -15,13 +15,11 @@ export default function Settings() {
     const [statsData, setStatsData] = useState(null);
 
     useEffect(() => {
-        // Fresh stats lo
         api.get('/dashboard/stats')
             .then(({ data }) => setStatsData(data.stats))
             .catch(console.error);
     }, []);
 
-    // Client data load karo
     useEffect(() => {
         if (client) {
             setForm({
@@ -37,11 +35,8 @@ export default function Settings() {
         setLoading(true);
         try {
             const { data } = await api.put('/auth/settings', form);
-
-            // Auth context update karo — widget turant reflect hoga
             const token = localStorage.getItem('Veloxa_token');
             login(token, { ...client, ...data.client });
-
             setSaved(true);
             setTimeout(() => setSaved(false), 3000);
         } catch (err) {
@@ -91,21 +86,53 @@ export default function Settings() {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                         Bot Instructions
                     </label>
-                    <p className="text-xs text-gray-400 mb-2">
-                        Enter your complete business details — timings, services, prices, and address
-                    </p>
+
+                    {/* Warning Banner */}
+                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-3">
+                        <div className="flex items-start gap-3">
+                            <span className="text-amber-500 text-lg mt-0.5">⚠️</span>
+                            <div>
+                                <p className="text-sm font-semibold text-amber-700 mb-1">
+                                    Important — Please Read Before Editing
+                                </p>
+                                <p className="text-xs text-amber-600 leading-relaxed">
+                                    The instructions already written here control your bot's booking, rescheduling, 
+                                    and cancellation system. <strong>Do not delete or replace them.</strong>
+                                    <br /><br />
+                                    ✅ <strong>Correct way:</strong> Add your business details <em>below</em> the existing text.<br />
+                                    ❌ <strong>Wrong way:</strong> Deleting everything and writing from scratch.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* How to add info */}
+                    <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-3">
+                        <p className="text-xs font-semibold text-blue-700 mb-2">
+                            📝 How to add your business details:
+                        </p>
+                        <div className="bg-white rounded-lg px-3 py-2 font-mono text-xs text-gray-500 leading-relaxed border border-blue-100">
+                            <span className="text-gray-300">{`--- existing instructions above ---`}</span>
+                            <br /><br />
+                            <span className="text-blue-600">--- MY BUSINESS INFO ---</span><br />
+                            Business: My Clinic, Karachi<br />
+                            Timings: Mon–Sat 10AM to 8PM, Sunday closed<br />
+                            Services: Checkup Rs.500, X-ray Rs.1500<br />
+                            Contact: 0300-1234567
+                        </div>
+                    </div>
+
                     <textarea
-                        rows={8}
+                        rows={10}
                         value={form.system_prompt}
                         onChange={e => setForm({ ...form, system_prompt: e.target.value })}
-                        placeholder={`Example:
-You are assistant for My Clinic.
-Timings: Mon-Sat 10AM-8PM, Sunday closed.
-Services: Checkup Rs.500, Xray Rs.1500
-Address: Main Road, Lahore
-Phone: 0300-1234567`}
+                        placeholder={`Your bot instructions will appear here...`}
                         className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-400 resize-none font-mono"
                     />
+
+                    <p className="text-xs text-gray-400 mt-1">
+                        💡 Scroll up in the text box to see existing instructions, then add your details at the bottom.
+                    </p>
                 </div>
 
                 {/* Plan info */}
@@ -138,7 +165,7 @@ Phone: 0300-1234567`}
                 <button
                     onClick={handleSave}
                     disabled={loading}
-                    className="w-full bg-blue-600 text-white py-3 rounded-xl font-medium hover:bg-blue-700 transition-all disabled:opacity-50"
+                    className="w-full bg-blue-600 text-white py-3 rounded-xl font-medium hover:bg-blue-700 transition-all disabled:opacity-50 cursor-pointer"
                 >
                     {loading ? 'Saving...' : saved ? '✅ Saved!' : 'Save Settings'}
                 </button>

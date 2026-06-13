@@ -214,13 +214,13 @@ export default function Landing() {
                     <div className="hidden md:flex items-center gap-3">
                         <button
                             onClick={() => navigate('/login')}
-                            className="text-sm text-gray-600 hover:text-blue-600 font-medium transition-colors"
+                            className="text-sm text-gray-600 hover:text-blue-600 font-medium transition-colors cursor-pointer"
                         >
                             Sign In
                         </button>
                         <button
                             onClick={() => navigate('/login')}
-                            className="text-sm bg-blue-600 text-white px-5 py-2.5 rounded-xl hover:bg-blue-700 transition-all shadow-sm"
+                            className="text-sm bg-blue-600 text-white px-5 py-2.5 rounded-xl hover:bg-blue-700 transition-all shadow-sm cursor-pointer"
                         >
                             Start Free Trial
                         </button>
@@ -297,14 +297,14 @@ export default function Landing() {
                         <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                             <button
                                 onClick={() => navigate('/login')}
-                                className="bg-blue-600 text-white px-8 py-4 rounded-2xl font-semibold text-base hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 hover:shadow-blue-300 hover:-translate-y-0.5"
+                                className="bg-blue-600 text-white px-8 py-4 rounded-2xl font-semibold text-base hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 hover:shadow-blue-300 hover:-translate-y-0.5 cursor-pointer"
                                 style={{ transition: 'all 0.2s ease' }}
                             >
                                 Start Free Trial →
                             </button>
                             <button
                                 onClick={() => setDemoOpen(true)}
-                                className="border-2 border-gray-200 text-gray-700 px-8 py-4 rounded-2xl font-semibold text-base hover:border-blue-300 hover:text-blue-600 transition-all hover:-translate-y-0.5"
+                                className="border-2 border-gray-200 text-gray-700 px-8 py-4 rounded-2xl font-semibold text-base hover:border-blue-300 hover:text-blue-600 transition-all hover:-translate-y-0.5 cursor-pointer"
                                 style={{ transition: 'all 0.2s ease' }}
                             >
                                 💬 Try Live Demo
@@ -676,7 +676,7 @@ export default function Landing() {
                         <div className="px-4 pb-3 text-center">
                             <button
                                 onClick={() => { setDemoOpen(false); navigate('/login'); }}
-                                className="text-xs text-blue-600 hover:underline"
+                                className="text-xs text-blue-600 hover:underline cursor-pointer"
                             >
                                 Ready to set this up for your business? Start free →
                             </button>

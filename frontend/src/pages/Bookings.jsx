@@ -65,7 +65,7 @@ useEffect(() => {
   <select
     value={filter}
     onChange={e => setFilter(e.target.value)}
-    className="border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none bg-white"
+    className="border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none bg-white cursor-pointer"
   >
     <option value="">All</option>
     <option value="pending">Pending</option>
@@ -132,7 +132,7 @@ useEffect(() => {
                   {b.status !== 'confirmed' && (
                     <button
                       onClick={() => updateStatus(b.id, 'confirmed')}
-                      className="text-xs bg-green-500 text-white px-3 py-1.5 rounded-lg hover:bg-green-600 whitespace-nowrap"
+                      className="text-xs bg-green-500 text-white px-3 py-1.5 rounded-lg hover:bg-green-600 whitespace-nowrap cursor-pointer"
                     >
                       ✓ Confirm
                     </button>
@@ -140,7 +140,7 @@ useEffect(() => {
                   {b.status !== 'cancelled' && (
                     <button
                       onClick={() => updateStatus(b.id, 'cancelled')}
-                      className="text-xs bg-red-500 text-white px-3 py-1.5 rounded-lg hover:bg-red-600 whitespace-nowrap"
+                      className="text-xs bg-red-500 text-white px-3 py-1.5 rounded-lg hover:bg-red-600 whitespace-nowrap cursor-pointer"
                     >
                       ✗ Cancel
                     </button>

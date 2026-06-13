@@ -50,8 +50,8 @@ export const register = async (req, res) => {
     // DB mein save karo
     const [result] = await pool.query(
       `INSERT INTO clients 
-       (business_name, email, password_hash, business_type, api_key, system_prompt, widget_name)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+       (business_name, email, password_hash, business_type, api_key, system_prompt, widget_name, plan_expires_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, DATE_ADD(NOW(), INTERVAL 7 DAY))`,
       [
         business_name,
         email,

@@ -111,8 +111,8 @@ export default function Dashboard() {
                 Your AI assistant is inactive. Please renew your plan.
               </p>
 
-              <a href="https://nexabot-ai-assistant-seven.vercel.app/#pricing"
-                target="_blank"
+              <a href="/#pricing"
+                
                 className="inline-block mt-2 text-xs bg-red-600 text-white px-4 py-1.5 rounded-lg hover:bg-red-700 transition-all"
               >
                 Renew Now →
@@ -127,8 +127,8 @@ export default function Dashboard() {
               <p className="text-orange-400 text-xs mt-1">
                 Renew now to keep your AI assistant running.
               </p>
-              <a href="https://nexabot-ai-assistant-seven.vercel.app/#pricing"
-                target="_blank"
+              <a href="/#pricing"
+                
                 className="inline-block mt-2 text-xs bg-orange-500 text-white px-4 py-1.5 rounded-lg hover:bg-orange-600 transition-all"
               >
                 Upgrade Plan →

@@ -3,9 +3,8 @@ import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 
 const StatCard = ({ icon, label, value, highlight }) => (
-  <div className={`bg-white rounded-2xl p-5 shadow-sm border transition-all duration-300 ${
-    highlight ? 'border-blue-200 shadow-blue-50' : 'border-gray-100'
-  }`}>
+  <div className={`bg-white rounded-2xl p-5 shadow-sm border transition-all duration-300 ${highlight ? 'border-blue-200 shadow-blue-50' : 'border-gray-100'
+    }`}>
     <div className="text-2xl mb-2">{icon}</div>
     <p className="text-2xl font-bold text-gray-800">{value}</p>
     <p className="text-xs text-gray-400 mt-1">{label}</p>
@@ -25,7 +24,7 @@ export default function Dashboard() {
   const fetchStats = useCallback(async (isInitial = false) => {
     try {
       const { data } = await api.get('/dashboard/stats');
-      
+
       // New booking check karo
       if (stats && data.stats.today_bookings > stats.today_bookings) {
         setNewBooking(true);
@@ -73,7 +72,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="p-4 lg:p-8">
+    <div className="p-4 lg:p-8 mt-5">
 
       {/* Header */}
       <div className="mb-6 flex items-start justify-between">
@@ -111,6 +110,13 @@ export default function Dashboard() {
               <p className="text-red-500 text-xs mt-1">
                 Your AI assistant is inactive. Please renew your plan.
               </p>
+
+              <a href="https://nexabot-ai-assistant-seven.vercel.app/#pricing"
+                target="_blank"
+                className="inline-block mt-2 text-xs bg-red-600 text-white px-4 py-1.5 rounded-lg hover:bg-red-700 transition-all"
+              >
+                Renew Now →
+              </a>
             </div>
           )}
           {stats.days_left > 0 && stats.days_left <= 5 && (
@@ -121,6 +127,12 @@ export default function Dashboard() {
               <p className="text-orange-400 text-xs mt-1">
                 Renew now to keep your AI assistant running.
               </p>
+              <a href="https://nexabot-ai-assistant-seven.vercel.app/#pricing"
+                target="_blank"
+                className="inline-block mt-2 text-xs bg-orange-500 text-white px-4 py-1.5 rounded-lg hover:bg-orange-600 transition-all"
+              >
+                Upgrade Plan →
+              </a>
             </div>
           )}
         </>

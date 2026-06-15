@@ -114,8 +114,8 @@ export default function Landing() {
     };
 
     const checkoutUrls = {
-        Starter: 'https://veloxa-ai.lemonsqueezy.com/checkout/buy/e42bdc9e-47bb-466f-af69-4c1ff2958073',
-        Business: 'https://veloxa-ai.lemonsqueezy.com/checkout/buy/c11d823a-a905-4962-8ca2-1f070c326cff',
+        Starter: 'https://veloxa-ai.lemonsqueezy.com/checkout/buy/1fd7f351-ca16-4e96-acfd-0e5b0a13b2a2',
+        Business: 'https://veloxa-ai.lemonsqueezy.com/checkout/buy/1c9400f4-658d-4682-8d0c-783a8cad6052',
     }
 
     const handlePlanClick = (plan) => {

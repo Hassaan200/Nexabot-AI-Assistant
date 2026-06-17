@@ -37,7 +37,7 @@ Veloxa is a **multi-tenant SaaS platform** that gives any business a
 | Layer | Technology |
 |-------|-----------|
 | Backend | Node.js + Express.js |
-| AI | Google Gemini 2.5 Flash |
+| AI | Google Gemini 2.5 Flash, Google Gemini Pro |
 | Database | MySQL (Aiven.io) |
 | Frontend | React + Tailwind CSS |
 | Deployment | Vercel |

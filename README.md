@@ -104,8 +104,8 @@ GET    /api/admin/clients          # All clients (admin)
 | Plan | Price | Messages | Use Case |
 |------|-------|----------|----------|
 | Trial | Free | 100/month | Testing |
-| Starter | $99/mo | 2,000/month | Small business |
-| Business | $199/mo | 10,000/month | High traffic |
+| Starter | $29/mo | 10,000/month | Small business |
+| Business | $79/mo | UnLimited/month | High traffic |
 
 ---
 
